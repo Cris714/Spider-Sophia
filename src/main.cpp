@@ -1,39 +1,43 @@
-// #include <Arduino.h>
-
-// // put function declarations here:
-// int myFunction(int, int);
-
-// void setup() {
-//   // put your setup code here, to run once:
-//   int result = myFunction(2, 3);
-// }
-
-// void loop() {
-//   // put your main code here, to run repeatedly:
-// }
-
-// // put function definitions here:
-// int myFunction(int x, int y) {
-//   return x + y;
-// }
-
 #include <Arduino.h>
-#include <ESP32Servo.h>
 
-const int pinServo = 18; // Pin GPIO al que está conectado el servo
-Servo miServo;
+#include "spider.h"
+ 
+ 
+
+int servo_input_pins[6][3] = { 
+  { 0,  6, 16 }, // pata 1
+  { 1,  7, 12 }, // pata 2
+  { 2,  8, 13 }, // pata 3
+  { 3,  9, 14 }, // pata 4
+  { 4, 10, 15 }, // pata 5
+  { 5, 11, 17 }  // pata 6 
+};
+
+float servo_home_state_angles[6][3] = {
+  { 60, 90, 120 },
+  { 60, 90, 120 },
+  { 60, 90, 120 },
+  { 60, 90, 120 },
+  { 60, 90, 120 },
+  { 60, 90, 120 }
+};
+
+Spider spider(servo_input_pins, servo_home_state_angles);
+
+int angleToPulse(int ang);
 
 void setup() 
 {
-  miServo.attach(pinServo);
+  Serial.begin(9600);
 }
+
+// - pata extendida
+// hip:  100 
+// femur: 60 (aumentar: sube femur) norm: 90
+// tibia: 40 (aumentar: baja tibia) norm 120
 
 void loop() 
 {
-  miServo.write(0);    // Mover el servo a 0 grados
-  delay(1000);         // Esperar 1 segundo
-  miServo.write(90);   // Mover el servo a 90 grados
-  delay(1000);         // Esperar 1 segundo
-  miServo.write(180);  // Mover el servo a 180 grados
-  delay(1000);         // Esperar 1 segundo
+  spider.home_position();
 }
+
