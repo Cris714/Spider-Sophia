@@ -24,7 +24,6 @@ float servo_home_state_angles[6][3] = {
 
 Spider spider(servo_input_pins, servo_home_state_angles);
 
-int angleToPulse(int ang);
 
 void setup() 
 {
@@ -38,6 +37,5 @@ void setup()
 
 void loop() 
 {
-  spider.home_position();
 }
 

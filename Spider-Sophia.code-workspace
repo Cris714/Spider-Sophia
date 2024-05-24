@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "Spider-Sophia",
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"error_handling.h": "c"
+		}
+	}
+}
