@@ -1,19 +1,25 @@
+#include <math.h>
+
 #include "servo_control.h"
 
 #define MIN_HIP_ANGLE 0
 #define MIN_FEMUR_ANGLE 0
-#define MIN_TIBIA_ANGLE 0
+#define MIN_TIBIA_ANGLE -50
 
-#define MAX_HIP_ANGLE 180
-#define MAX_FEMUR_ANGLE 180
-#define MAX_TIBIA_ANGLE 180
+#define MAX_HIP_ANGLE 225
+#define MAX_FEMUR_ANGLE 225
+#define MAX_TIBIA_ANGLE 225
+
+#define HIP_LENGTH 3
+#define FEMUR_LENGTH 6
+#define TIBIA_LENGTH 11
 
 
 
 struct leg_state
 {
     float hip_state;
-    float femur_state;
+    float femur_state; 
     float tibia_state;
 
     leg_state(){
@@ -27,24 +33,57 @@ struct leg_state
         femur_state = femur_angle;
         tibia_state = tibia_angle;
     }
+
+    leg_state(const float angles[3]){
+        hip_state = angles[0];
+        femur_state = angles[1];
+        tibia_state = angles[2];
+    }
 };
 
 class Leg {
     private:
         static ServoDriver driver;
+
+        void apply_transform(leg_state &state); 
+
         int pins[3];
+        int min_pulses[3];
+        int max_pulses[3];
         leg_state state;
         leg_state home_state;
 
     public: 
+        static void initialize();
+        // static leg_state leg_inverse_kinematics(const float x, const float y, const float z);
+
         Leg();
-        Leg(const int pin_hip, const int pin_femur, const int pin_tibia, 
-            const float hip_home, const float femur_home, const float tibia_home);
+        Leg(const int pins[3], const float leg_home[3], const int min_pulses[3], const int max_pulses[3]);
         bool state_update(leg_state new_state);
         void home();
 };
 
-ServoDriver Leg::driver{ServoDriver(2, 60)};
+ServoDriver Leg::driver{ServoDriver(50)};
+
+void Leg::initialize(){
+    driver.initialize();
+}
+
+leg_state leg_inverse_kinematics(const float x, const float y, const float z){
+    // leg's inverse kinematics, where x, y and z are the end-effector position wrt coxa's joint 
+    // and NOT the spider center of mass 
+    float theta0, theta1, theta2, xfemur, r2, x_intersect;
+
+    xfemur = x - HIP_LENGTH;
+    r2 = xfemur*xfemur + y*y;
+    x_intersect = (r2 - TIBIA_LENGTH*TIBIA_LENGTH)/(2*FEMUR_LENGTH) + FEMUR_LENGTH/2;
+
+    theta0 = atan2f(z, x);
+    theta1 = atan2f(y, xfemur) + acosf(x_intersect/sqrtf(r2));
+    theta2 = -acosf((x_intersect - FEMUR_LENGTH)/TIBIA_LENGTH);
+
+    return leg_state(180*theta0/PI, 180*theta1/PI, 180*theta2/PI);
+}
 
 // method definitions
 Leg::Leg(){
@@ -52,18 +91,33 @@ Leg::Leg(){
 
 }
 
-Leg::Leg(const int pin_hip, const int pin_femur, const int pin_tibia, 
-            const float hip_home, const float femur_home, const float tibia_home){
-    // initialize leg control pins
-    pins[0] = pin_hip;
-    pins[1] = pin_femur;
-    pins[2] = pin_tibia;
+Leg::Leg(const int pins[3], const float leg_home[3], const int min_pulses[3], const int max_pulses[3]){
+    // initialize leg control pins and max pulses
+    
+    for (int i = 0; i < 3; i++){
+        this->pins[i] = pins[i];
+        this->min_pulses[i] = min_pulses[i];
+        this->max_pulses[i] = max_pulses[i];
+    }
 
     // set home_state
-    home_state = leg_state(hip_home, femur_home, tibia_home);
+    home_state = leg_state(leg_home);
+}
+
+void Leg::apply_transform(leg_state &state_){
+    state_.hip_state += home_state.hip_state;
+    state_.femur_state += home_state.femur_state;
+    state_.tibia_state -= home_state.tibia_state;
 }
 
 bool Leg::state_update(leg_state new_state){
+    // apply_transform(new_state);
+    new_state.hip_state += home_state.hip_state;
+    new_state.femur_state += home_state.femur_state;
+    new_state.tibia_state = -new_state.tibia_state + home_state.tibia_state;
+
+    // Serial.printf("%f, %f, %f\n", new_state.hip_state, new_state.femur_state, new_state.tibia_state);
+
     // check new state satisfies min angles
     if (new_state.hip_state < MIN_HIP_ANGLE || 
                 new_state.femur_state < MIN_FEMUR_ANGLE || 
@@ -72,14 +126,16 @@ bool Leg::state_update(leg_state new_state){
 
     // check new state satisfies max angles
     if (new_state.hip_state > MAX_HIP_ANGLE || 
-                new_state.femur_state < MAX_FEMUR_ANGLE || 
-                new_state.tibia_state < MAX_TIBIA_ANGLE)
+                new_state.femur_state > MAX_FEMUR_ANGLE || 
+                new_state.tibia_state > MAX_TIBIA_ANGLE)
         return false;
 
+    Serial.println("mov");
+
     // set new state
-    driver.control(pins[0], new_state.hip_state); // hip
-    driver.control(pins[1], new_state.femur_state); // femur
-    driver.control(pins[2], new_state.tibia_state); // tibia
+    driver.control(pins[0], new_state.hip_state, min_pulses[0], max_pulses[0]); // hip
+    driver.control(pins[1], new_state.femur_state, min_pulses[1], max_pulses[1]); // femur
+    driver.control(pins[2], new_state.tibia_state, min_pulses[2], max_pulses[2]); // tibia
 
     state = new_state;
 
@@ -88,9 +144,9 @@ bool Leg::state_update(leg_state new_state){
 
 void Leg::home(){
     // set home state
-    driver.control(pins[0], home_state.hip_state); // hip
-    driver.control(pins[1], home_state.femur_state); // femur
-    driver.control(pins[2], home_state.tibia_state); // tibia
+    driver.control(pins[0], home_state.hip_state, min_pulses[0], max_pulses[0]); // hip
+    driver.control(pins[1], home_state.femur_state, min_pulses[1], max_pulses[1]); // femur
+    driver.control(pins[2], home_state.tibia_state, min_pulses[2], max_pulses[2]); // tibia
 
     state = home_state;
 }
