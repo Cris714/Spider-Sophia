@@ -82,7 +82,7 @@ leg_state leg_inverse_kinematics(const float x, const float y, const float z){
     theta1 = atan2f(y, xfemur) + acosf(x_intersect/sqrtf(r2));
     theta2 = -acosf((x_intersect - FEMUR_LENGTH)/TIBIA_LENGTH);
 
-    return leg_state(180*theta0/PI, 180*theta1/PI, 180*theta2/PI);
+    return leg_state(RAD_TO_DEG*theta0, RAD_TO_DEG*theta1, RAD_TO_DEG*theta2);
 }
 
 // method definitions

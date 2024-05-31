@@ -24,89 +24,43 @@ Spider::Spider(const int pins_config[6][3], const float legs_home[6][3],
 void Spider::initialize(){
     Leg{}.initialize();
 }
-
+ 
 
 void Spider::move_forward(){
     // moves forward only one step
-    int n;
-    float speed = 0.6;
 
     float **coords5f1 = new float*[3];
     float **coords5f2 = new float*[3];
     float **coords5f3 = new float*[3];
 
-    // PATA 1 AVANZA
     coords5f1[0] = new float[3]{7, -7, 5.5};
     coords5f1[1] = new float[3]{10.5, -4, 1.25};
     coords5f1[2] = new float[3]{10, -7, -3};
 
-    float **mov1_5 = trajectory_line_multipoint(n, coords5f1, speed, 3, false);
-
-    for (int i = 0; i < n; i++){
-        legs[0].state_update(leg_inverse_kinematics(mov1_5[i][0], mov1_5[i][1], mov1_5[i][2]));
-        delay(12);
-    }
-
-
-    // PATA 2 RETEOCEDE
-    coords5f2[0] = new float[3]{12, -7 , -6};
-    coords5f2[1] = new float[3]{9, -7, 1};
-
-    float **mov2_5 = trajectory_line_multipoint(n, coords5f2, speed, 2, false);
-
-    for (int i = 0; i < n; i++){
-        legs[1].state_update(leg_inverse_kinematics(mov2_5[i][0], mov2_5[i][1], mov2_5[i][2]));
-        delay(12);
-    }
-
-
-    // PATA 3 AVANZA
-    coords5f3[0] = new float[3]{12.5, -7, 5};
-    coords5f3[1] = new float[3]{9.75, -4, -0.5};
-    coords5f3[2] = new float[3]{7, -7, -6};
-
-    float **mov3_5 = trajectory_line_multipoint(n, coords5f3, speed, 3, false);
-
-    for (int i = 0; i < n; i++){
-        legs[2].state_update(leg_inverse_kinematics(mov3_5[i][0], mov3_5[i][1], mov3_5[i][2]));
-        delay(12);
-    }
-
-
-    // PATA 1 RETROCEDE
-    coords5f1[0] = new float[3]{10, -7, -3};
-    coords5f1[1] = new float[3]{7, -7, 5.5};
-
-    mov1_5 = trajectory_line_multipoint(n, coords5f1, speed, 2, false);
-
-    for (int i = 0; i < n; i++){
-        legs[0].state_update(leg_inverse_kinematics(mov1_5[i][0], mov1_5[i][1], mov1_5[i][2]));
-        delay(12);
-    }
-
-
-    // PATA 2 AVANZA
     coords5f2[0] = new float[3]{9, -7, 1};
     coords5f2[1] = new float[3]{10.5, -4, -2.5};
     coords5f2[2] = new float[3]{12, -7 , -6};
 
-    mov2_5 = trajectory_line_multipoint(n, coords5f2, speed, 3, false);
-
-    for (int i = 0; i < n; i++){
-        legs[1].state_update(leg_inverse_kinematics(mov2_5[i][0], mov2_5[i][1], mov2_5[i][2]));
-        delay(12);
-    }
+    coords5f3[0] = new float[3]{12.5, -7, 5};
+    coords5f3[1] = new float[3]{9.75, -4, -0.5};
+    coords5f3[2] = new float[3]{7, -7, -6};
 
 
-    // PATA 3 RETROCEDE
-    coords5f3[0] = new float[3]{7, -7, -6};
-    coords5f3[1] = new float[3]{12.5, -7, 5};
+    auto points = trajectory_1s3(
+        new int[3]{0, 1, 2}, 
+        coords5f1,
+        coords5f2,
+        coords5f3,
+        0.2
+        );
 
-    mov3_5 = trajectory_line_multipoint(n, coords5f3, speed, 2, false);
-
-    for (int i = 0; i < n; i++){
-        legs[2].state_update(leg_inverse_kinematics(mov3_5[i][0], mov3_5[i][1], mov3_5[i][2]));
-        delay(12);
+    for (int i = 0; i < points.getSize(); i++){
+        auto seq = points[i];
+        for (int j = 0; j < seq.getSize(); j++){
+            auto p = seq[j];
+            legs[p.leg].state_update(leg_inverse_kinematics(p.x, p.y, p.z));
+            delay(12);
+        }
     }
     
 
