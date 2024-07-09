@@ -103,8 +103,13 @@ float **trajectory_line_multipoint(int &n_samples, float **points, const float d
     int  count;
     float a, b, c, D, gamma;
 
-    n_samples = n_points - 1;
-    for (int i = 0; i < n_points - 1; i++){
+    int it = n_points;
+    if(close) {
+        it++;  
+    }
+
+    n_samples = it - 1;
+    for (int i = 0; i < it - 1; i++){
         a = points[(i+1)%n_points][0] - points[i][0];
         b = points[(i+1)%n_points][1] - points[i][1];
         c = points[(i+1)%n_points][2] - points[i][2];

@@ -10,6 +10,7 @@ class Spider{
             const int servo_min_pulses[6][3], const int servo_max_pulses[6][3]);
         void initialize();
         void move_forward();
+        void turn(bool direction);
         void home_position();
         void standup();
 };
@@ -26,50 +27,40 @@ void Spider::initialize(){
 }
  
 
-void Spider::move_forward(){
+void Spider::turn(bool direction){ //true -> right, false -> left
     // moves forward only one step
 
-    float **coords5f1 = new float*[3];
-    float **coords5f2 = new float*[3];
-    float **coords5f3 = new float*[3];
+    int n_points = 3;
 
-    coords5f1[0] = new float[3]{7, -7, 5.5};
-    coords5f1[1] = new float[3]{10.5, -4, 1.25};
-    coords5f1[2] = new float[3]{10, -7, -3};
+    float **coords = new float*[n_points];
 
-    coords5f2[0] = new float[3]{9, -7, 1};
-    coords5f2[1] = new float[3]{10.5, -4, -2.5};
-    coords5f2[2] = new float[3]{12, -7 , -6};
+    coords[0] = new float[3]{7, -9, 5.5};
+    coords[1] = new float[3]{10.5, -4, 1.25};
+    coords[2] = new float[3]{10, -9, -3};
 
-    coords5f3[0] = new float[3]{12.5, -7, 5};
-    coords5f3[1] = new float[3]{9.75, -4, -0.5};
-    coords5f3[2] = new float[3]{7, -7, -6};
+    if(!direction) {
+        float *temp = coords[0];
+        coords[0] = coords[2];
+        coords[2] = temp;
+    }
 
+    int n_samples;
+    float **mov = trajectory_line_multipoint(n_samples, coords, 1, n_points, false);
 
-    auto points = trajectory_1s3(
-        new int[3]{0, 1, 2}, 
-        coords5f1,
-        coords5f2,
-        coords5f3,
-        0.2
-        );
-
-    for (int i = 0; i < points.getSize(); i++){
-        auto seq = points[i];
-        for (int j = 0; j < seq.getSize(); j++){
-            auto p = seq[j];
-            legs[p.leg].state_update(leg_inverse_kinematics(p.x, p.y, p.z));
+    for(int j=0; j<2; j++){
+        for (int i = 0; i < n_samples; i++){
+            // Avanza patas (j) (j+2) (j+4)
+            for(int k=j; k<6; k += 2) {
+                legs[k].state_update(leg_inverse_kinematics(mov[i][0], mov[i][1], mov[i][2]));
+            }
+            // Retrocede patas (1-j) (3-j) (5-j)
+            for(int k=(1-j); k<6; k += 2) {
+                legs[k].state_update(leg_inverse_kinematics(coords[0][0], coords[0][1], mov[n_samples -i -1][2]));
+            }
             delay(12);
+            
         }
     }
-    
-
-
-    // // CALIBRATION ONLY
-    // legs[2].state_update(leg_state({-45, 0, 0}));
-    // delay(2000);
-    // legs[2].state_update(leg_state({45, 0, 0}));
-    // delay(2000);
 }
 
 void Spider::home_position(){
