@@ -1,21 +1,35 @@
 #include <math.h>
 #include "linkedlist.h"
 
-struct t_point{
+struct t_point {
     int leg;
     float x;
     float y;
     float z;
 
-    t_point(const int leg, const float x, const float y, const float z){
+    t_point(const int leg, const float x, const float y, const float z) {
         this->leg = leg;
         this->x = x;
         this->y = y;
         this->z = z;
     }
+
+    t_point() : leg(0), x(0.0f), y(0.0f), z(0.0f) {}
 };
 
-List<List<t_point>> trajectory_1s3(
+struct t_point3{
+    t_point p1;
+    t_point p2;
+    t_point p3; 
+
+    t_point3(t_point p1, t_point p2, t_point p3){
+        this->p1 = p1;
+        this->p2 = p2;
+        this->p3 = p3;
+    }
+};
+
+List<t_point3> trajectory_1s3(
         const int legs[3],
         float **l0t, 
         float **l1t, 
@@ -23,7 +37,7 @@ List<List<t_point>> trajectory_1s3(
         const float dist
     ){
     float dx0, dy0, dz0, dx1, dy1, dz1, dx2, dy2, dz2, D, gamma;
-    List<List<t_point>> points;
+    List<t_point3> points;
 
     // seq 1
     for (int i = 0; i < 3 - 1; i++){
@@ -40,13 +54,11 @@ List<List<t_point>> trajectory_1s3(
         D = sqrtf(dx0*dx0 + dy0*dy0 + dz0*dz0);
         gamma = dist/D;
         for (int j = 0; j < (int)(D/dist); j++){
-            List<t_point> sequence;
-            sequence.add(t_point(legs[0], l0t[i][0] + j*gamma*dx0, l0t[i][1] + j*gamma*dy0, l0t[i][2] + j*gamma*dz0));
-            sequence.add(t_point(legs[1], l1t[2][0] + j*gamma*dx1, l1t[0][1], l1t[2][2] + j*gamma*dz1));
-            sequence.add(t_point(legs[2], (l2t[0][0] + l2t[2][0])/2 + j*gamma*dx2, l2t[0][1], (l2t[0][2] + l2t[2][2])/2 + j*gamma*dz2));
-            points.add(sequence);
-            Serial.println("PASO\n\n\n\n\n\n");
-            delay(3000);
+            points.add(t_point3(
+                t_point(legs[0], l0t[i][0] + j*gamma*dx0, l0t[i][1] + j*gamma*dy0, l0t[i][2] + j*gamma*dz0),
+                t_point(legs[1], l1t[2][0] + (i+j*gamma)*dx1, l1t[0][1], l1t[2][2] + (i+j*gamma)*dz1),
+                t_point(legs[2], (l2t[0][0] + l2t[2][0])/2 + (i+j*gamma)*dx2, l2t[0][1], (l2t[0][2] + l2t[2][2])/2 + (i+j*gamma)*dz2)
+                ));
         }
     }
 
@@ -66,10 +78,11 @@ List<List<t_point>> trajectory_1s3(
         gamma = dist/D;
         for (int j = 0; j < (int)(D/dist); j++){
             List<t_point> sequence;
-            sequence.add(t_point(legs[2], l2t[i][0] + j*gamma*dx2, l2t[i][1] + j*gamma*dy2, l2t[i][2] + j*gamma*dz2));
-            sequence.add(t_point(legs[0], l0t[2][0] + j*gamma*dx0, l0t[0][1], l0t[2][2] + j*gamma*dz0));
-            sequence.add(t_point(legs[1], (l1t[0][0] + l1t[2][0])/2 + j*gamma*dx1, l1t[0][1], (l1t[0][2] + l1t[2][2])/2 + j*gamma*dz1));
-            points.add(sequence);
+            points.add(t_point3(
+                t_point(legs[2], l2t[i][0] + j*gamma*dx2, l2t[i][1] + j*gamma*dy2, l2t[i][2] + j*gamma*dz2),
+                t_point(legs[0], l0t[2][0] + (i+j*gamma)*dx0, l0t[0][1], l0t[2][2] + (i+j*gamma)*dz0),
+                t_point(legs[1], (l1t[0][0] + l1t[2][0])/2 + (i+j*gamma)*dx1, l1t[0][1], (l1t[0][2] + l1t[2][2])/2 + (i+j*gamma)*dz1)
+            ));
         }
     }
 
@@ -89,10 +102,11 @@ List<List<t_point>> trajectory_1s3(
         gamma = dist/D;
         for (int j = 0; j < (int)(D/dist); j++){
             List<t_point> sequence;
-            sequence.add(t_point(legs[1], l1t[i][0] + j*gamma*dx1, l1t[i][1] + j*gamma*dy1, l1t[i][2] + j*gamma*dz1));
-            sequence.add(t_point(legs[2], l2t[2][0] + j*gamma*dx2, l2t[0][1], l2t[2][2] + j*gamma*dz2));
-            sequence.add(t_point(legs[0], (l0t[0][0] + l0t[2][0])/2 + j*gamma*dx0, l0t[0][1], (l0t[0][2] + l0t[2][2])/2 + j*gamma*dz0));
-            points.add(sequence);
+            points.add(t_point3(
+                t_point(legs[1], l1t[i][0] + j*gamma*dx1, l1t[i][1] + j*gamma*dy1, l1t[i][2] + j*gamma*dz1),
+                t_point(legs[2], l2t[2][0] + (i+j*gamma)*dx2, l2t[0][1], l2t[2][2] + (i+j*gamma)*dz2),
+                t_point(legs[0], (l0t[0][0] + l0t[2][0])/2 + (i+j*gamma)*dx0, l0t[0][1], (l0t[0][2] + l0t[2][2])/2 + (i+j*gamma)*dz0)
+            ));
         }
     }
 

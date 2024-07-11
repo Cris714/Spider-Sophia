@@ -130,8 +130,6 @@ bool Leg::state_update(leg_state new_state){
                 new_state.tibia_state > MAX_TIBIA_ANGLE)
         return false;
 
-    Serial.println("mov");
-
     // set new state
     driver.control(pins[0], new_state.hip_state, min_pulses[0], max_pulses[0]); // hip
     driver.control(pins[1], new_state.femur_state, min_pulses[1], max_pulses[1]); // femur
