@@ -138,11 +138,5 @@ void Spider::standup(){
         for (int i = 0; i < 6; i+=2){
             legs[i].state_update(leg_state(0.0, 28.5, -109.5));
         }
-        
-        delay(2000);
-        for (int i = 0; i < 6; i+=2){
-            legs[i].state_update(leg_state(0.0, 11.0, -95.2));
-        }
-        delay(2000);
     }
 }

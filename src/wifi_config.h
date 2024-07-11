@@ -4,6 +4,8 @@
 #include <string>
 using namespace std;
 
+char replyPacket[] = "Connected";
+
 class WifiConfig{
     private:
         WiFiUDP udp;
@@ -48,6 +50,14 @@ string WifiConfig::receive_packet() {
     string strCon = packetBuffer;
 
     Serial.printf("Received packet: %s\n", packetBuffer);
+
+    if(strCon == "stdup") {
+        udp.beginPacket(remoteIp, udp.remotePort());
+        for (size_t i = 0; i < sizeof(replyPacket); i++) {
+            udp.write((uint8_t)replyPacket[i]);
+        }
+        udp.endPacket();
+    }
 
     return strCon;
   }

@@ -40,8 +40,8 @@ int servo_max_pulse[6][3] = {
 };
 
 Spider spider(servo_input_pins, servo_home_state_angles, servo_min_pulse, servo_max_pulse);
-char* ssid = "Maria";
-char* pswd = "84437158";
+char ssid[] = "Wifi_14000";
+char pswd[] = "wifi14000";
 WifiConfig wifi_config(ssid, pswd);
 
 void setup() 
@@ -58,12 +58,15 @@ void setup()
 
 void loop() 
 {
-  // for(int i=0; i<5; i++) spider.turn(true);
-  // for(int i=0; i<5; i++) spider.turn(false);
+  // for(int i=0; i<3; i++) spider.turn(true);
+  // for(int i=0; i<3; i++) spider.turn(false);
+  // spider.standup();
   // spider.move_forward();
+
   string task = wifi_config.receive_packet();
 
-  if(task == "mvFwd") spider.move_forward();
+  if(task == "stdup") spider.standup();
+  else if(task == "mvFwd") spider.move_forward();
   else if(task == "mvR") spider.turn(true);
   else if(task == "mvL") spider.turn(false);
 }
