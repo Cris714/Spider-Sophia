@@ -13,6 +13,8 @@ class Spider{
         void turn(bool direction);
         void home_position();
         void standup();
+        void set_coords(const t_point6& coord_state);
+        void set_state(const t_point6& state);
 };
 
 Spider::Spider(const int pins_config[6][3], const float legs_home[6][3], 
@@ -58,25 +60,25 @@ void Spider::move_forward(){
     // coords5f3[2] = new float[3]{9, -7, 0};
 
 
-    auto points = trajectory_1s3(
-        new int[3]{0, 1, 2}, 
-        coords5f1,
-        coords5f2,
-        coords5f3,
-        0.8
-        );
+    // auto points = trajectory_1s3(
+    //     new int[3]{0, 1, 2}, 
+    //     coords5f1,
+    //     coords5f2,
+    //     coords5f3,
+    //     0.8
+    //     );
 
-    for (int i = 0; i < points.getSize(); i++){
-        auto seq = points[i];
-        auto seq2 = points[(i+points.getSize()/2)%points.getSize()];//points[(points.getSize()-i-1)%points.getSize()];
-        legs[seq.p1.leg].state_update(leg_inverse_kinematics(seq.p1.x, seq.p1.y, seq.p1.z));
-        legs[seq.p2.leg].state_update(leg_inverse_kinematics(seq.p2.x, seq.p2.y, seq.p2.z));
-        legs[seq.p3.leg].state_update(leg_inverse_kinematics(seq.p3.x, seq.p3.y, seq.p3.z));
-        legs[5-seq2.p3.leg].state_update(leg_inverse_kinematics(seq2.p3.x, seq2.p3.y, -seq2.p3.z));
-        legs[5-seq2.p2.leg].state_update(leg_inverse_kinematics(seq2.p2.x, seq2.p2.y, -seq2.p2.z));
-        legs[5-seq2.p1.leg].state_update(leg_inverse_kinematics(seq2.p1.x, seq2.p1.y, -seq2.p1.z));
-        delay(12);
-    }
+    // for (int i = 0; i < points.getSize(); i++){
+    //     auto seq = points[i];
+    //     auto seq2 = points[(i+points.getSize()/2)%points.getSize()];//points[(points.getSize()-i-1)%points.getSize()];
+    //     legs[seq.p1.leg].state_update(leg_inverse_kinematics(seq.p1.x, seq.p1.y, seq.p1.z));
+    //     legs[seq.p2.leg].state_update(leg_inverse_kinematics(seq.p2.x, seq.p2.y, seq.p2.z));
+    //     legs[seq.p3.leg].state_update(leg_inverse_kinematics(seq.p3.x, seq.p3.y, seq.p3.z));
+    //     legs[5-seq2.p3.leg].state_update(leg_inverse_kinematics(seq2.p3.x, seq2.p3.y, -seq2.p3.z));
+    //     legs[5-seq2.p2.leg].state_update(leg_inverse_kinematics(seq2.p2.x, seq2.p2.y, -seq2.p2.z));
+    //     legs[5-seq2.p1.leg].state_update(leg_inverse_kinematics(seq2.p1.x, seq2.p1.y, -seq2.p1.z));
+    //     delay(12);
+    // }
     
 
 
@@ -139,4 +141,22 @@ void Spider::standup(){
             legs[i].state_update(leg_state(0.0, 28.5, -109.5));
         }
     }
+}
+
+void Spider::set_coords(const t_point6& coord_state){
+    legs[0].state_update(leg_inverse_kinematics(coord_state.p0.x, coord_state.p0.y, coord_state.p0.z));
+    legs[1].state_update(leg_inverse_kinematics(coord_state.p1.x, coord_state.p1.y, coord_state.p1.z));
+    legs[2].state_update(leg_inverse_kinematics(coord_state.p2.x, coord_state.p2.y, coord_state.p2.z));
+    legs[3].state_update(leg_inverse_kinematics(coord_state.p3.x, coord_state.p3.y, coord_state.p3.z));
+    legs[4].state_update(leg_inverse_kinematics(coord_state.p4.x, coord_state.p4.y, coord_state.p4.z));
+    legs[5].state_update(leg_inverse_kinematics(coord_state.p5.x, coord_state.p5.y, coord_state.p5.z));
+}
+
+void Spider::set_state(const t_point6& state){
+    legs[0].state_update({state.p0.x, state.p0.y, state.p0.z});
+    legs[1].state_update({state.p1.x, state.p1.y, state.p1.z});
+    legs[2].state_update({state.p2.x, state.p2.y, state.p2.z});
+    legs[3].state_update({state.p3.x, state.p3.y, state.p3.z});
+    legs[4].state_update({state.p4.x, state.p4.y, state.p4.z});
+    legs[5].state_update({state.p5.x, state.p5.y, state.p5.z});
 }
