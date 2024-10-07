@@ -1,4 +1,6 @@
 #include <Arduino.h>
+#include <sstream>
+#include <vector>
 
 #include "spider.h"
 #include "wifi_config.h"
@@ -51,7 +53,7 @@ void setup()
     Serial.begin(115200);
 
     spider.initialize();
-    // wifi_config.initialize();  
+    wifi_config.initialize();  
 }
 
 // - pata extendida
@@ -66,31 +68,53 @@ void loop()
     // spider.standup();
     // spider.move_forward();
 
-    // string task = wifi_config.receive_packet();
-    string task = "prueba";
+    string task = wifi_config.receive_packet();
 
-    if(task == "prueba") {
-        MatrixXf points = bf_control.moveBodyFrame(0,1,0,radians(0),radians(20),radians(0));
+    
 
-        t_point6 next_point = t_point6(
-            t_point( points(0, 0), points(0, 1), points(0,2) ),
-            t_point( points(1, 0), points(1, 1), points(1,2) ),
-            t_point( points(2, 0), points(2, 1), points(2,2) ),
-            t_point( points(3, 0), points(3, 1), points(3,2) ),
-            t_point( points(4, 0), points(4, 1), points(4,2) ),
-            t_point( points(5, 0), points(5, 1), points(5,2) )
-        );
+    if(task != "") {
 
-        spider.set_state(next_point);
+        switch(task[0]) {
+            case 'C':
+            {
+                stringstream ss (task.substr(1));
+                string item;
+                vector<float> crds;
 
-        Serial.printf("Received %f, %f, %f\n", next_point.p0.x, next_point.p0.y, next_point.p0.z);
-        Serial.printf("Received %f, %f, %f\n", next_point.p1.x, next_point.p1.y, next_point.p1.z);
-        Serial.printf("Received %f, %f, %f\n", next_point.p2.x, next_point.p2.y, next_point.p2.z);
-        Serial.printf("Received %f, %f, %f\n", next_point.p3.x, next_point.p3.y, next_point.p3.z);
-        Serial.printf("Received %f, %f, %f\n", next_point.p4.x, next_point.p4.y, next_point.p4.z);
-        Serial.printf("Received %f, %f, %f\n", next_point.p5.x, next_point.p5.y, next_point.p5.z);
+                while (getline (ss, item, ',')) {
+                    crds.push_back(stof(item));
+                }
 
-        delay(5000);
+                MatrixXf points = bf_control.moveBodyFrame(crds[0], crds[1], crds[2], crds[3], crds[4], crds[5]);
+
+                t_point6 next_point = t_point6(
+                    t_point( points(0, 0), points(0, 1), points(0,2) ),
+                    t_point( points(1, 0), points(1, 1), points(1,2) ),
+                    t_point( points(2, 0), points(2, 1), points(2,2) ),
+                    t_point( points(3, 0), points(3, 1), points(3,2) ),
+                    t_point( points(4, 0), points(4, 1), points(4,2) ),
+                    t_point( points(5, 0), points(5, 1), points(5,2) )
+                );
+
+                spider.set_coords(next_point);
+
+                Serial.printf("Received %f, %f, %f\n", next_point.p0.x, next_point.p0.y, next_point.p0.z);
+                Serial.printf("Received %f, %f, %f\n", next_point.p1.x, next_point.p1.y, next_point.p1.z);
+                Serial.printf("Received %f, %f, %f\n", next_point.p2.x, next_point.p2.y, next_point.p2.z);
+                Serial.printf("Received %f, %f, %f\n", next_point.p3.x, next_point.p3.y, next_point.p3.z);
+                Serial.printf("Received %f, %f, %f\n", next_point.p4.x, next_point.p4.y, next_point.p4.z);
+                Serial.printf("Received %f, %f, %f\n", next_point.p5.x, next_point.p5.y, next_point.p5.z);
+            }
+                break;
+
+            case 'A':
+            {
+                Serial.print("Caso A :p");
+            }
+                break;
+            default:
+                break;
+        }
     }
 
     // if(task != ""){

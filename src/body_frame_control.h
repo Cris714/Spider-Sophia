@@ -24,7 +24,6 @@ class BodyFrameControl {
         BodyFrameControl();
         MatrixXf moveBodyFrame(const float x, const float y, const float z, const float theta, const float phi, const float psi);
         Matrix4f T(const float x, const float y, const float z, const float theta, const float phi, const float psi);
-        void printMat();
 };
 
 BodyFrameControl::BodyFrameControl() {
@@ -89,14 +88,4 @@ Matrix4f BodyFrameControl::T(const float x, const float y, const float z, const 
         0., 0., 0., 1.;
 
     return m;
-}
-
-void BodyFrameControl::printMat() {
-    for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            Serial.print(this->T_MCs_f[0](i, j), 4);
-            Serial.print("\t");
-        }
-        Serial.println(); 
-    }
 }
