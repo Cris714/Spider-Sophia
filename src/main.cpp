@@ -63,15 +63,8 @@ void setup()
 
 void loop() 
 {
-    // for(int i=0; i<3; i++) spider.turn(true);
-    // for(int i=0; i<3; i++) spider.turn(false);
-    // spider.standup();
-    // spider.move_forward();
-
     string task = wifi_config.receive_packet();
-
     
-
     if(task != "") {
 
         switch(task[0]) {
@@ -79,13 +72,17 @@ void loop()
             {
                 stringstream ss (task.substr(1));
                 string item;
-                vector<float> crds;
+                float** crds = new float*[1];
+                crds[0] = new float[6];
+                int** targets = new int*[1];
+                targets[0] = new int[6]{1,1,1,1,1,1};
 
-                while (getline (ss, item, ',')) {
-                    crds.push_back(stof(item));
+                for (int i=0; i<6; i++) {
+                    getline (ss, item, ',');
+                    crds[0][i] = stof(item);
                 }
 
-                MatrixXf points = bf_control.moveBodyFrame(crds[0], crds[1], crds[2], crds[3], crds[4], crds[5]);
+                MatrixXf points = bf_control.moveBodyFrame(crds, targets, 1);
 
                 t_point6 next_point = t_point6(
                     t_point( points(0, 0), points(0, 1), points(0,2) ),
@@ -98,12 +95,18 @@ void loop()
 
                 spider.set_coords(next_point);
 
-                Serial.printf("Received %f, %f, %f\n", next_point.p0.x, next_point.p0.y, next_point.p0.z);
-                Serial.printf("Received %f, %f, %f\n", next_point.p1.x, next_point.p1.y, next_point.p1.z);
-                Serial.printf("Received %f, %f, %f\n", next_point.p2.x, next_point.p2.y, next_point.p2.z);
-                Serial.printf("Received %f, %f, %f\n", next_point.p3.x, next_point.p3.y, next_point.p3.z);
-                Serial.printf("Received %f, %f, %f\n", next_point.p4.x, next_point.p4.y, next_point.p4.z);
-                Serial.printf("Received %f, %f, %f\n", next_point.p5.x, next_point.p5.y, next_point.p5.z);
+                // Serial.printf("Received %f, %f, %f\n", next_point.p0.x, next_point.p0.y, next_point.p0.z);
+                // Serial.printf("Received %f, %f, %f\n", next_point.p1.x, next_point.p1.y, next_point.p1.z);
+                // Serial.printf("Received %f, %f, %f\n", next_point.p2.x, next_point.p2.y, next_point.p2.z);
+                // Serial.printf("Received %f, %f, %f\n", next_point.p3.x, next_point.p3.y, next_point.p3.z);
+                // Serial.printf("Received %f, %f, %f\n", next_point.p4.x, next_point.p4.y, next_point.p4.z);
+                // Serial.printf("Received %f, %f, %f\n", next_point.p5.x, next_point.p5.y, next_point.p5.z);
+            }
+                break;
+
+            case 'W':
+            {
+                bf_control.move_around(spider, radians(stof(task.substr(1))));
             }
                 break;
 
@@ -117,69 +120,5 @@ void loop()
         }
     }
 
-    // if(task != ""){
-    //     const char* c_buffer = task.c_str();
-
-    //     switch (c_buffer[0]) {
-    //         case 'A':
-    //         {
-    //             uint16_t buff[18];
-
-    //             memcpy(buff, &c_buffer[1], 18*sizeof(uint16_t));
-
-    //             t_point6 next_point = t_point6(
-    //                 t_point(  NTOF(buff[0]),  NTOF(buff[1]),  NTOF(buff[2]) ),
-    //                 t_point(  NTOF(buff[3]),  NTOF(buff[4]),  NTOF(buff[5]) ),
-    //                 t_point(  NTOF(buff[6]),  NTOF(buff[7]),  NTOF(buff[8]) ),
-    //                 t_point(  NTOF(buff[9]), NTOF(buff[10]), NTOF(buff[11]) ),
-    //                 t_point( NTOF(buff[12]), NTOF(buff[13]), NTOF(buff[14]) ),
-    //                 t_point( NTOF(buff[15]), NTOF(buff[16]), NTOF(buff[17]) )
-    //             );
-                
-    //             spider.set_state(next_point);
-                
-    //             // Serial.printf("Received %f, %f, %f\n", next_point.p0.x, next_point.p0.y, next_point.p0.z);
-    //             // Serial.printf("Received %f, %f, %f\n", next_point.p1.x, next_point.p1.y, next_point.p1.z);
-    //             // Serial.printf("Received %f, %f, %f\n", next_point.p2.x, next_point.p2.y, next_point.p2.z);
-    //             // Serial.printf("Received %f, %f, %f\n", next_point.p3.x, next_point.p3.y, next_point.p3.z);
-    //             // Serial.printf("Received %f, %f, %f\n", next_point.p4.x, next_point.p4.y, next_point.p4.z);
-    //             // Serial.printf("Received %f, %f, %f\n", next_point.p5.x, next_point.p5.y, next_point.p5.z);
-    //         }
-    //             break;
-
-    //         case 'C':
-    //         {
-    //             uint16_t buff[18];
-
-    //             memcpy(buff, &c_buffer[1], 18*sizeof(uint16_t));
-
-    //             t_point6 next_point = t_point6(
-    //                 t_point(  NTOF(buff[0]),  NTOF(buff[1]),  NTOF(buff[2]) ),
-    //                 t_point(  NTOF(buff[3]),  NTOF(buff[4]),  NTOF(buff[5]) ),
-    //                 t_point(  NTOF(buff[6]),  NTOF(buff[7]),  NTOF(buff[8]) ),
-    //                 t_point(  NTOF(buff[9]), NTOF(buff[10]), NTOF(buff[11]) ),
-    //                 t_point( NTOF(buff[12]), NTOF(buff[13]), NTOF(buff[14]) ),
-    //                 t_point( NTOF(buff[15]), NTOF(buff[16]), NTOF(buff[17]) )
-    //             );
-                
-    //             spider.set_coords(next_point);
-                
-    //             // Serial.printf("Received %f, %f, %f\n", next_point.p0.x, next_point.p0.y, next_point.p0.z);
-    //             // Serial.printf("Received %f, %f, %f\n", next_point.p1.x, next_point.p1.y, next_point.p1.z);
-    //             // Serial.printf("Received %f, %f, %f\n", next_point.p2.x, next_point.p2.y, next_point.p2.z);
-    //             // Serial.printf("Received %f, %f, %f\n", next_point.p3.x, next_point.p3.y, next_point.p3.z);
-    //             // Serial.printf("Received %f, %f, %f\n", next_point.p4.x, next_point.p4.y, next_point.p4.z);
-    //             // Serial.printf("Received %f, %f, %f\n", next_point.p5.x, next_point.p5.y, next_point.p5.z);
-    //         }
-    //             break;
-
-    //         default:
-    //             break;
-    //     }
-    // }
-
-    // if(task == "stdup") spider.standup();
-    // else if(task == "mvFwd") spider.move_forward();
-    // else if(task == "mvR") spider.turn(true);
-    // else if(task == "mvL") spider.turn(false);
+    delay(5000);
 }

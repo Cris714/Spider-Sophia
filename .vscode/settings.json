@@ -3,6 +3,7 @@
         "*.rmd": "markdown",
         "new": "cpp",
         "cmath": "cpp",
-        "complex": "cpp"
+        "complex": "cpp",
+        "sstream": "cpp"
     }
 }
