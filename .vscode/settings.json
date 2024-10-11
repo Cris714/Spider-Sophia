@@ -4,6 +4,7 @@
         "new": "cpp",
         "cmath": "cpp",
         "complex": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "chrono": "cpp"
     }
 }

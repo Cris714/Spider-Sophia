@@ -5,9 +5,9 @@ using namespace std;
 using Eigen::Matrix4f;
 using Eigen::MatrixXf;
 
-#define DELAY 0.03
-#define I 0.5
-#define A 2
+#define DELAY 0.025
+#define I 0.4
+#define A 3
 #define h -2
 
 #define LMT(coord) min(max(coord, -256.0f), 256.0f)
@@ -15,6 +15,8 @@ using Eigen::MatrixXf;
 class BodyFrameControl {
     private:
         int i;
+        bool moving;
+        float last_yaw;
 
         Matrix4f T_SB;
         
@@ -27,13 +29,16 @@ class BodyFrameControl {
 
     public:
         BodyFrameControl();
-        MatrixXf moveBodyFrame(float** moves, int** targets, const int n);
+        t_point6 moveBodyFrame(float** moves, int** targets, const int n);
         void move_around(Spider &spider, const float yaw);
+        void finishMovement(Spider &spider);
         Matrix4f T(const float* crds);
+        bool isMoving();
 };
 
 BodyFrameControl::BodyFrameControl() {
     this->i = 0;
+    this->moving = false;
     // initial body frame wrt space frame 
     this->T_SB = T(new float[6]{0, 0, 0, 0, 0, 0});
 
@@ -55,7 +60,7 @@ BodyFrameControl::BodyFrameControl() {
     for(int i=0; i<6; i++) this->T_SCs[i] = this->T_SB*this->T_BMs[i]*this->T_MCs_i[i];
 }
 
-MatrixXf BodyFrameControl::moveBodyFrame(float** moves, int** targets, const int n) {
+t_point6 BodyFrameControl::moveBodyFrame(float** moves, int** targets, const int n) {
     Matrix4f T_SMs_inv[6];
     Matrix4f T_SB_f;
     bool* moved_legs = new bool[6]{false, false, false, false, false};
@@ -90,7 +95,7 @@ MatrixXf BodyFrameControl::moveBodyFrame(float** moves, int** targets, const int
         }
     }
 
-    return points;
+    return t_point6( points );
 
 }
 
@@ -103,31 +108,99 @@ void BodyFrameControl::move_around(Spider &spider, const float yaw) {
     float alpha;
     float** moves = new float*[2];
     int** targets = new int*[2];
-    for(float amp=-A; amp<A; amp += I) {
+
+    // se recibe información de movimiento por primera vez
+    if(!(this->moving)) {
+        for(float amp=0; amp<A; amp += I/2) {
+            alpha = PI - I_alpha * t;
+            moves[0] = new float[6]{    amp * sinf(yaw),               0,     amp * cosf(yaw), 0, 0, 0};
+            moves[1] = new float[6]{-dx * cosf(alpha/2), h * sinf(alpha), -dz * cosf(alpha/2), 0, 0, 0};
+            targets[0] = new int[6]{0, 1, 0, 1, 0, 1};
+            targets[1] = new int[6]{1, 0, 1, 0, 1, 0};
+
+            spider.set_coords( moveBodyFrame(moves, targets, 2) );
+
+            t++;
+            delay(DELAY*1000);
+        }
+        this->moving = true;
+    }
+
+    if(this->moving) {
+        // se mantiene la información de movimient
+        t = 0;
+        for(float amp=-A; amp<A; amp += I) {
+            alpha = I_alpha * t;
+            moves[0] = new float[6]{ amp * sinf(yaw),               0,  amp * cosf(yaw), 0, 0, 0};
+            moves[1] = new float[6]{dx * cosf(alpha), h * sinf(alpha), dz * cosf(alpha), 0, 0, 0};
+            targets[0] = new int[6]{~i&1, i&1, ~i&1, i&1, ~i&1, i&1};
+            targets[1] = new int[6]{i&1, ~i&1, i&1, ~i&1, i&1, ~i&1};
+
+            spider.set_coords( moveBodyFrame(moves, targets, 2) );
+
+            t++;
+            delay(DELAY*1000);
+        }
+
+        this->i++;
+        this->last_yaw = yaw;
+
+        // Serial.printf("%d\n", this->i);
+    }
+
+    // float dx = A * sinf(yaw);               // parte x vector de avance
+    // float dz = A * cosf(yaw);               // parte z vector de avance
+    // float I_alpha = PI * I / (2 * A - I);   // intervalo de muestreo semielipse
+
+    // int t = 0;
+    // float alpha;
+    // float** moves = new float*[2];
+    // int** targets = new int*[2];
+    // for(float amp=-A; amp<A; amp += I) {
+    //     alpha = I_alpha * t;
+    //     moves[0] = new float[6]{ amp * sinf(yaw),               0,  amp * cosf(yaw), 0, 0, 0};
+    //     moves[1] = new float[6]{dx * cosf(alpha), h * sinf(alpha), dz * cosf(alpha), 0, 0, 0};
+    //     targets[0] = new int[6]{~i&1, i&1, ~i&1, i&1, ~i&1, i&1};
+    //     targets[1] = new int[6]{i&1, ~i&1, i&1, ~i&1, i&1, ~i&1};
+
+    //     spider.set_coords( moveBodyFrame(moves, targets, 2) );
+
+    //     t++;
+    //     delay(DELAY*1000);
+    // }
+
+    // this->i++;
+}
+
+void BodyFrameControl::finishMovement(Spider &spider) {
+    Serial.print("Finish movement...\n");
+    float dx = A * sinf(this->last_yaw);               // parte x vector de avance
+    float dz = A * cosf(this->last_yaw);               // parte z vector de avance
+    float I_alpha = PI * I / (2 * A - I);   // intervalo de muestreo semielipse
+
+    int t = 0;
+    float alpha;
+    float** moves = new float*[2];
+    int** targets = new int*[2];
+
+    // si ya no se recibe información de movimiento
+    for(float amp=-A; amp<0; amp += I/2) {
         alpha = I_alpha * t;
-        moves[0] = new float[6]{ amp * sinf(yaw),               0,  amp * cosf(yaw), 0, 0, 0};
-        moves[1] = new float[6]{dx * cosf(alpha), h * sinf(alpha), dz * cosf(alpha), 0, 0, 0};
+        moves[0] = new float[6]{amp * sinf(this->last_yaw),               0, amp * cosf(this->last_yaw), 0, 0, 0};
+        moves[1] = new float[6]{        dx * cosf(alpha/2), h * sinf(alpha),         dz * cosf(alpha/2), 0, 0, 0};
         targets[0] = new int[6]{~i&1, i&1, ~i&1, i&1, ~i&1, i&1};
         targets[1] = new int[6]{i&1, ~i&1, i&1, ~i&1, i&1, ~i&1};
 
-        MatrixXf points = moveBodyFrame(moves, targets, 2);
+        t_point6 next_point = moveBodyFrame(moves, targets, 2);
 
-        t_point6 next_point = t_point6(
-            t_point( points(0, 0), points(0, 1), points(0,2) ),
-            t_point( points(1, 0), points(1, 1), points(1,2) ),
-            t_point( points(2, 0), points(2, 1), points(2,2) ),
-            t_point( points(3, 0), points(3, 1), points(3,2) ),
-            t_point( points(4, 0), points(4, 1), points(4,2) ),
-            t_point( points(5, 0), points(5, 1), points(5,2) )
-        );
-
-        spider.set_coords(next_point);
+        spider.set_coords( next_point );
 
         t++;
-        delay(DELAY);
+        delay(DELAY*1000);
     }
 
-    this->i++;
+    this->i = 0;
+    this->moving = false;
 }
 
 Matrix4f BodyFrameControl::T(const float* crds){
@@ -146,4 +219,8 @@ Matrix4f BodyFrameControl::T(const float* crds){
         0., 0., 0., 1.;
 
     return m;
+}
+
+bool BodyFrameControl::isMoving() {
+    return this->moving;
 }

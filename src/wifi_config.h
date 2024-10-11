@@ -37,29 +37,44 @@ void WifiConfig::initialize(){
 }
 
 string WifiConfig::receive_packet() {
-  int packetSize = udp.parsePacket();
-  if (packetSize) {
-    char packetBuffer[255];
-    IPAddress remoteIp = udp.remoteIP();
-    int len = udp.read(packetBuffer, 255);
+    // udp.flush();
+    // int packetSize = udp.parsePacket();
+    // if (packetSize) {
+    //     char packetBuffer[255];
+    //     IPAddress remoteIp = udp.remoteIP();
+    //     int len = udp.read(packetBuffer, 255);
 
-    if (len > 0) packetBuffer[len] = 0;
-    Serial.print("From ");    //---|------------------------------------------------|
-    Serial.print(remoteIp);   //---| Use this to find out what IP the text is from. |
-    Serial.print(" : ");      //---|------------------------------------------------|
-    string strCon = packetBuffer;
+    //     if (len > 0) packetBuffer[len] = 0;
+    //     Serial.print("From ");    //---|------------------------------------------------|
+    //     Serial.print(remoteIp);   //---| Use this to find out what IP the text is from. |
+    //     Serial.print(" : ");      //---|------------------------------------------------|
+    //     string strCon = packetBuffer;
 
-    Serial.printf("Received packet: %s\n", packetBuffer);
+    //     Serial.printf("Received packet: %s\n", packetBuffer);
 
-    if(strCon == "stdup") {
-        udp.beginPacket(remoteIp, udp.remotePort());
-        for (size_t i = 0; i < sizeof(replyPacket); i++) {
-            udp.write((uint8_t)replyPacket[i]);
-        }
-        udp.endPacket();
+    //     return strCon;
+    // }
+    // return "";
+
+    string lastPacket = "";
+    int packetSize;
+    
+    // desacrtar paquetes anteriores
+    while ((packetSize = udp.parsePacket()) > 0) {
+        char packetBuffer[255];
+        IPAddress remoteIp = udp.remoteIP();
+        int len = udp.read(packetBuffer, 255);
+
+        if (len > 0) packetBuffer[len] = 0;
+        lastPacket = string(packetBuffer); 
+
+        // Serial.printf("Discarded packet from %s: %s\n", remoteIp.toString().c_str(), packetBuffer);
     }
 
-    return strCon;
-  }
-  return "";
+    // último paquete
+    if (!lastPacket.empty()) {
+        Serial.printf("Received packet: %s\n", lastPacket.c_str());
+    }
+
+    return lastPacket;
 }

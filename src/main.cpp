@@ -1,10 +1,11 @@
 #include <Arduino.h>
 #include <sstream>
-#include <vector>
 
 #include "spider.h"
 #include "wifi_config.h"
 #include "body_frame_control.h"
+
+#define MAX_INTERVAL 1000
 
 int servo_input_pins[6][3] = { 
     { 16, 17, 18 }, // pata 1
@@ -43,8 +44,12 @@ int servo_max_pulse[6][3] = {
 };
 
 Spider spider(servo_input_pins, servo_home_state_angles, servo_min_pulse, servo_max_pulse);
+// char ssid[] = "Maria";
+// char pswd[] = "84437158";
 char ssid[] = "Wifi_14000";
 char pswd[] = "wifi14000";
+// char ssid[] = "Kris";
+// char pswd[] = "qwer1234";
 WifiConfig wifi_config(ssid, pswd);
 BodyFrameControl bf_control = BodyFrameControl();
 
@@ -63,6 +68,7 @@ void setup()
 
 void loop() 
 {
+    unsigned long lastPacketTime;
     string task = wifi_config.receive_packet();
     
     if(task != "") {
@@ -82,18 +88,7 @@ void loop()
                     crds[0][i] = stof(item);
                 }
 
-                MatrixXf points = bf_control.moveBodyFrame(crds, targets, 1);
-
-                t_point6 next_point = t_point6(
-                    t_point( points(0, 0), points(0, 1), points(0,2) ),
-                    t_point( points(1, 0), points(1, 1), points(1,2) ),
-                    t_point( points(2, 0), points(2, 1), points(2,2) ),
-                    t_point( points(3, 0), points(3, 1), points(3,2) ),
-                    t_point( points(4, 0), points(4, 1), points(4,2) ),
-                    t_point( points(5, 0), points(5, 1), points(5,2) )
-                );
-
-                spider.set_coords(next_point);
+                spider.set_coords( bf_control.moveBodyFrame(crds, targets, 1) );
 
                 // Serial.printf("Received %f, %f, %f\n", next_point.p0.x, next_point.p0.y, next_point.p0.z);
                 // Serial.printf("Received %f, %f, %f\n", next_point.p1.x, next_point.p1.y, next_point.p1.z);
@@ -106,7 +101,8 @@ void loop()
 
             case 'W':
             {
-                bf_control.move_around(spider, radians(stof(task.substr(1))));
+                bf_control.move_around(spider, stof(task.substr(1)));
+                lastPacketTime = millis();
             }
                 break;
 
@@ -118,7 +114,7 @@ void loop()
             default:
                 break;
         }
+    } else {
+        if (bf_control.isMoving() && (millis() - lastPacketTime > MAX_INTERVAL) ) bf_control.finishMovement(spider);
     }
-
-    delay(5000);
 }
