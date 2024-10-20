@@ -1,13 +1,15 @@
 #include <Arduino.h>
 #include <sstream>
+#include <vector>
 
 #include "config.h"
 #include "spider.h"
-#include "wifi_config.h"
+// #include "wifi_config.h"
+#include "wifi_ap.h"
 #include "body_frame_control.h"
 
 Spider spider(servo_input_pins, servo_home_state_angles, servo_min_pulse, servo_max_pulse);
-WifiConfig wifi_config(SID, PSWD);
+WifiAP wifi_ap(SID, PSWD, PORT);
 BodyFrameControl bf_control = BodyFrameControl();
 
 void setup() 
@@ -15,7 +17,7 @@ void setup()
     Serial.begin(115200);
 
     spider.initialize();
-    wifi_config.initialize();  
+    wifi_ap.initialize();  
 }
 
 // - pata extendida
@@ -26,7 +28,7 @@ void setup()
 void loop() 
 {
     unsigned long lastPacketTime;
-    string task = wifi_config.receive_packet();
+    string task = wifi_ap.receive_packet();
     
     if(task != "") {
 
@@ -35,18 +37,20 @@ void loop()
             {
                 stringstream ss (task.substr(1));
                 string item;
-                float** crds = new float*[1];
-                crds[0] = new float[6];
-                int** targets = new int*[1];
-                targets[0] = new int[6]{1,1,1,1,1,1};
+
+                vector<vector<float>> crds(1, vector<float>(6));
+                vector<vector<int>> targets = {{1,1,1,1,1,1}};
 
                 for (int i=0; i<6; i++) {
                     getline (ss, item, ',');
                     crds[0][i] = stof(item);
                 }
 
+
                 spider.set_coords( bf_control.moveBodyFrame(crds, targets, 1) );
 
+                // t_point6 next_point = bf_control.moveBodyFrame(crds, targets, 1);
+                // spider.set_coords(next_point);
                 // Serial.printf("Received %f, %f, %f\n", next_point.p0.x, next_point.p0.y, next_point.p0.z);
                 // Serial.printf("Received %f, %f, %f\n", next_point.p1.x, next_point.p1.y, next_point.p1.z);
                 // Serial.printf("Received %f, %f, %f\n", next_point.p2.x, next_point.p2.y, next_point.p2.z);

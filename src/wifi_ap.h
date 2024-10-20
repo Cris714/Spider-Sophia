@@ -4,7 +4,7 @@
 #include <string>
 using namespace std;
 
-class WifiConfig{
+class WifiAP{
     private:
         WiFiUDP udp;
         const char* ssid;
@@ -12,31 +12,24 @@ class WifiConfig{
         int udpPort;
 
     public:
-        WifiConfig(const char* ssid, const char* pswd, const int udpPort);
+        WifiAP(const char* ssid, const char* pswd, const int udpPort);
         void initialize();
         string receive_packet();
 };
 
-WifiConfig::WifiConfig(const char* ssid, const char* pswd, const int udpPort){
+WifiAP::WifiAP(const char* ssid, const char* pswd, const int udpPort){
     this->ssid = ssid;
     this->pswd = pswd;
     this->udpPort = udpPort;
 }
 
-void WifiConfig::initialize(){
-    WiFi.begin(ssid, pswd);
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(1000);
-        Serial.println("Connecting to WiFi...");
-    }
-    Serial.println("Connected to WiFi");
-
+void WifiAP::initialize(){
+    WiFi.softAP(ssid, pswd);
     udp.begin(udpPort);
-    Serial.printf("Now listening at IP %s, UDP port %d\n", WiFi.localIP().toString().c_str(), udpPort);
+    Serial.printf("Now listening at IP %s, UDP port %d\n", WiFi.softAPIP().toString(), udpPort);
 }
 
-string WifiConfig::receive_packet() {
-    // udp.flush();
+string WifiAP::receive_packet() {
     // int packetSize = udp.parsePacket();
     // if (packetSize) {
     //     char packetBuffer[255];
@@ -58,7 +51,7 @@ string WifiConfig::receive_packet() {
     string lastPacket = "";
     int packetSize;
     
-    // desacrtar paquetes anteriores
+    // descartar paquetes anteriores
     while ((packetSize = udp.parsePacket()) > 0) {
         char packetBuffer[255];
         IPAddress remoteIp = udp.remoteIP();

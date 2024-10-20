@@ -1,9 +1,12 @@
 #include <ArduinoEigen.h>
 #include <algorithm>
+#include <vector>
 
 using namespace std;
 using Eigen::Matrix4f;
 using Eigen::MatrixXf;
+
+#define LMT(coord) min(max(coord, -256.0f), 256.0f)
 
 class BodyFrameControl {
     private:
@@ -23,10 +26,10 @@ class BodyFrameControl {
 
     public:
         BodyFrameControl();
-        t_point6 moveBodyFrame(float** moves, int** targets, const int n);
+        t_point6 moveBodyFrame(vector<vector<float>>& moves, vector<vector<int>>& targets, const int n);
         void move_around(Spider &spider, const float yaw, const float I);
         void finishMovement(Spider &spider);
-        Matrix4f T(const float* crds);
+        Matrix4f T(const vector<float>& crds);
         bool isMoving();
 };
 
@@ -34,32 +37,32 @@ BodyFrameControl::BodyFrameControl() {
     this->i = 0;
     this->moving = false;
     // initial body frame wrt space frame 
-    this->T_SB = T(new float[6]{0, 0, 0, 0, 0, 0});
+    this->T_SB = T({0, 0, 0, 0, 0, 0});
 
     // leg-origin frame wrt body frame
-    this->T_BMs[0] = T(new float[6]{ 2.5, 0,  4.625, 0,  radians(-55), 0});
-    this->T_BMs[1] = T(new float[6]{   4, 0,      0, 0,             0, 0});
-    this->T_BMs[2] = T(new float[6]{ 2.5, 0, -4.625, 0, radians(-300), 0});
-    this->T_BMs[3] = T(new float[6]{-2.5, 0, -4.625, 0, radians(-245), 0});
-    this->T_BMs[4] = T(new float[6]{  -4, 0,      0, 0, radians(-180), 0});
-    this->T_BMs[5] = T(new float[6]{-2.5, 0,  4.625, 0, radians(-123), 0});
+    this->T_BMs[0] = T({ 2.5, 0,  4.625, 0,  radians(-55), 0});
+    this->T_BMs[1] = T({   4, 0,      0, 0,             0, 0});
+    this->T_BMs[2] = T({ 2.5, 0, -4.625, 0, radians(-300), 0});
+    this->T_BMs[3] = T({-2.5, 0, -4.625, 0, radians(-245), 0});
+    this->T_BMs[4] = T({  -4, 0,      0, 0, radians(-180), 0});
+    this->T_BMs[5] = T({-2.5, 0,  4.625, 0, radians(-123), 0});
 
     // end-effector frame wrt leg-origin frame
     for(int i=0; i<6; i++) {
-        this->T_MCs_i[i] = T(new float[6]{7, -7, 0, 0, 0, 0});
-        this->T_MCs_f[i] = T(new float[6]{7, -7, 0, 0, 0, 0});
+        this->T_MCs_i[i] = T({7, -7, 0, 0, 0, 0});
+        this->T_MCs_f[i] = T({7, -7, 0, 0, 0, 0});
     }
 
     // initial end-effector frame wrt space frame 
     for(int i=0; i<6; i++) this->T_SCs[i] = this->T_SB*this->T_BMs[i]*this->T_MCs_i[i];
 }
 
-t_point6 BodyFrameControl::moveBodyFrame(float** moves, int** targets, const int n) {
+t_point6 BodyFrameControl::moveBodyFrame(vector<vector<float>>& moves, vector<vector<int>>& targets, const int n) {
     Matrix4f T_SMs_inv[6];
     Matrix4f T_SB_f;
-    bool* moved_legs = new bool[6]{false, false, false, false, false};
-    float* move;
-    int* target;
+    vector<int> moved_legs(6, 0);
+    vector<float> move;
+    vector<int> target;
 
     for(int i=0; i<n; i++) {
         move = moves[i];
@@ -69,7 +72,7 @@ t_point6 BodyFrameControl::moveBodyFrame(float** moves, int** targets, const int
             if(target[j]) {
                 try {
                     if(moved_legs[j]) runtime_error("Sobrelapamiento de movimientos");
-                    moved_legs[j] = true;
+                    moved_legs[j] = 1;
                     T_SMs_inv[j] = (T_SB_f * this->T_BMs[j]).inverse();
                     this->T_MCs_f[j] = T_SMs_inv[j] * this->T_SCs[j];
 
@@ -101,17 +104,17 @@ void BodyFrameControl::move_around(Spider &spider, const float yaw, const float 
 
     int t = 0;
     float alpha;
-    float** moves = new float*[2];
-    int** targets = new int*[2];
+    vector<vector<float>> moves(2, vector<float>(6));
+    vector<vector<int>> targets(2, vector<int>(6));
 
     // se recibe información de movimiento por primera vez
     if(!(this->moving)) {
         for(float amp=0; amp<A; amp += I/2) {
             alpha = PI - I_alpha * t;
-            moves[0] = new float[6]{    amp * sinf(yaw),               0,     amp * cosf(yaw), 0, 0, 0};
-            moves[1] = new float[6]{-dx * cosf(alpha/2), H * sinf(alpha), -dz * cosf(alpha/2), 0, 0, 0};
-            targets[0] = new int[6]{0, 1, 0, 1, 0, 1};
-            targets[1] = new int[6]{1, 0, 1, 0, 1, 0};
+            moves[0] = {      amp * sinf(yaw),               0,       amp * cosf(yaw), 0, 0, 0};
+            moves[1] = {-dx * cosf(alpha / 2), H * sinf(alpha), -dz * cosf(alpha / 2), 0, 0, 0};
+            targets[0] = {0, 1, 0, 1, 0, 1};
+            targets[1] = {1, 0, 1, 0, 1, 0};
 
             spider.set_coords( moveBodyFrame(moves, targets, 2) );
 
@@ -126,10 +129,10 @@ void BodyFrameControl::move_around(Spider &spider, const float yaw, const float 
         t = 0;
         for(float amp=-A; amp<A; amp += I) {
             alpha = I_alpha * t;
-            moves[0] = new float[6]{ amp * sinf(yaw),               0,  amp * cosf(yaw), 0, 0, 0};
-            moves[1] = new float[6]{dx * cosf(alpha), H * sinf(alpha), dz * cosf(alpha), 0, 0, 0};
-            targets[0] = new int[6]{~i&1, i&1, ~i&1, i&1, ~i&1, i&1};
-            targets[1] = new int[6]{i&1, ~i&1, i&1, ~i&1, i&1, ~i&1};
+            moves[0] = { amp * sinf(yaw),               0,  amp * cosf(yaw), 0, 0, 0};
+            moves[1] = {dx * cosf(alpha), H * sinf(alpha), dz * cosf(alpha), 0, 0, 0};
+            targets[0] = {~i & 1, i & 1, ~i & 1, i & 1, ~i & 1, i & 1};
+            targets[1] = {i & 1, ~i & 1, i & 1, ~i & 1, i & 1, ~i & 1};
 
             spider.set_coords( moveBodyFrame(moves, targets, 2) );
 
@@ -152,16 +155,16 @@ void BodyFrameControl::finishMovement(Spider &spider) {
 
     int t = 0;
     float alpha;
-    float** moves = new float*[2];
-    int** targets = new int*[2];
+    vector<vector<float>> moves(2, vector<float>(6));
+    vector<vector<int>> targets(2, vector<int>(6));
 
     // si ya no se recibe información de movimiento
     for(float amp=-A; amp<0; amp += (this->last_i)/2) {
         alpha = I_alpha * t;
-        moves[0] = new float[6]{amp * sinf(this->last_yaw),               0, amp * cosf(this->last_yaw), 0, 0, 0};
-        moves[1] = new float[6]{        dx * cosf(alpha/2), H * sinf(alpha),         dz * cosf(alpha/2), 0, 0, 0};
-        targets[0] = new int[6]{~i&1, i&1, ~i&1, i&1, ~i&1, i&1};
-        targets[1] = new int[6]{i&1, ~i&1, i&1, ~i&1, i&1, ~i&1};
+        moves[0] = {amp * sinf(this->last_yaw),               0, amp * cosf(this->last_yaw), 0, 0, 0};
+        moves[1] = {        dx * cosf(alpha/2), H * sinf(alpha),         dz * cosf(alpha/2), 0, 0, 0};
+        targets[0] = {~i&1, i&1, ~i&1, i&1, ~i&1, i&1};
+        targets[1] = {i&1, ~i&1, i&1, ~i&1, i&1, ~i&1};
 
         t_point6 next_point = moveBodyFrame(moves, targets, 2);
 
@@ -175,7 +178,7 @@ void BodyFrameControl::finishMovement(Spider &spider) {
     this->moving = false;
 }
 
-Matrix4f BodyFrameControl::T(const float* crds){
+Matrix4f BodyFrameControl::T(const vector<float>& crds){
     Matrix4f m;
 
     float x = crds[0];

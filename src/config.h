@@ -2,16 +2,18 @@
 #define NUM_SERVOS_PER_LEG 3
 #define MAX_INTERVAL 1 // Intervalo de espera (s)
 
+// wifi_ap
+#define SID "MANKITO32"
+#define PSWD "qwer1234"
+#define PORT 3000
+
 // wifi_config
 // #define SID "Wifi_14000"
 // #define PSWD "wifi14000"
-#define SID "isi"
-#define PSWD "98CR84VP491"
 
 // body_frame_control
 #define DELAY 0.025
 #define H -2
-#define LMT(coord) min(max(coord, -256.0f), 256.0f)
 
 // leg
 #define MIN_HIP_ANGLE 0
