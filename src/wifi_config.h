@@ -9,17 +9,17 @@ char replyPacket[] = "Connected";
 class WifiConfig{
     private:
         WiFiUDP udp;
-        char* ssid;
-        char* pswd;
+        const char* ssid;
+        const char* pswd;
         const int udpPort = 3000;
 
     public:
-        WifiConfig(char* ssid, char* pswd);
+        WifiConfig(const char* ssid, const char* pswd);
         void initialize();
         string receive_packet();
 };
 
-WifiConfig::WifiConfig(char* ssid, char* pswd){
+WifiConfig::WifiConfig(const char* ssid, const char* pswd){
     this->ssid = ssid;
     this->pswd = pswd;
 }

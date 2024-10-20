@@ -2,20 +2,6 @@
 
 #include "servo_control.h"
 
-#define MIN_HIP_ANGLE 0
-#define MIN_FEMUR_ANGLE 0
-#define MIN_TIBIA_ANGLE -50
-
-#define MAX_HIP_ANGLE 225
-#define MAX_FEMUR_ANGLE 225
-#define MAX_TIBIA_ANGLE 225
-
-#define HIP_LENGTH 3.5
-#define FEMUR_LENGTH 4.5
-#define TIBIA_LENGTH 9
-
-
-
 struct leg_state
 {
     float hip_state;
@@ -34,7 +20,7 @@ struct leg_state
         tibia_state = tibia_angle;
     }
 
-    leg_state(const float angles[3]){
+    leg_state(const float angles[NUM_SERVOS_PER_LEG]){
         hip_state = angles[0];
         femur_state = angles[1];
         tibia_state = angles[2];

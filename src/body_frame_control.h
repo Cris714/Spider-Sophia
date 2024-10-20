@@ -5,18 +5,12 @@ using namespace std;
 using Eigen::Matrix4f;
 using Eigen::MatrixXf;
 
-#define DELAY 0.025
-#define I 0.4
-#define A 3
-#define h -2
-
-#define LMT(coord) min(max(coord, -256.0f), 256.0f)
-
 class BodyFrameControl {
     private:
         int i;
         bool moving;
         float last_yaw;
+        float last_i;
 
         Matrix4f T_SB;
         
@@ -30,7 +24,7 @@ class BodyFrameControl {
     public:
         BodyFrameControl();
         t_point6 moveBodyFrame(float** moves, int** targets, const int n);
-        void move_around(Spider &spider, const float yaw);
+        void move_around(Spider &spider, const float yaw, const float I);
         void finishMovement(Spider &spider);
         Matrix4f T(const float* crds);
         bool isMoving();
@@ -86,11 +80,11 @@ t_point6 BodyFrameControl::moveBodyFrame(float** moves, int** targets, const int
         }
     }
 
-    MatrixXf points(6,3);
+    MatrixXf points(NUM_LEGS, NUM_SERVOS_PER_LEG);
 
-    for(int i=0; i<6; i++) {
+    for(int i=0; i<NUM_LEGS; i++) {
         // copy final positions of each leg
-        for(int row = 0; row < 3; row++) {
+        for(int row = 0; row < NUM_SERVOS_PER_LEG; row++) {
             points(i, row) = LMT( this->T_MCs_f[i](row, this->T_MCs_f[i].cols()-1) );
         }
     }
@@ -99,7 +93,8 @@ t_point6 BodyFrameControl::moveBodyFrame(float** moves, int** targets, const int
 
 }
 
-void BodyFrameControl::move_around(Spider &spider, const float yaw) {
+void BodyFrameControl::move_around(Spider &spider, const float yaw, const float I) {
+    float A = I + 2.8;
     float dx = A * sinf(yaw);               // parte x vector de avance
     float dz = A * cosf(yaw);               // parte z vector de avance
     float I_alpha = PI * I / (2 * A - I);   // intervalo de muestreo semielipse
@@ -114,7 +109,7 @@ void BodyFrameControl::move_around(Spider &spider, const float yaw) {
         for(float amp=0; amp<A; amp += I/2) {
             alpha = PI - I_alpha * t;
             moves[0] = new float[6]{    amp * sinf(yaw),               0,     amp * cosf(yaw), 0, 0, 0};
-            moves[1] = new float[6]{-dx * cosf(alpha/2), h * sinf(alpha), -dz * cosf(alpha/2), 0, 0, 0};
+            moves[1] = new float[6]{-dx * cosf(alpha/2), H * sinf(alpha), -dz * cosf(alpha/2), 0, 0, 0};
             targets[0] = new int[6]{0, 1, 0, 1, 0, 1};
             targets[1] = new int[6]{1, 0, 1, 0, 1, 0};
 
@@ -132,7 +127,7 @@ void BodyFrameControl::move_around(Spider &spider, const float yaw) {
         for(float amp=-A; amp<A; amp += I) {
             alpha = I_alpha * t;
             moves[0] = new float[6]{ amp * sinf(yaw),               0,  amp * cosf(yaw), 0, 0, 0};
-            moves[1] = new float[6]{dx * cosf(alpha), h * sinf(alpha), dz * cosf(alpha), 0, 0, 0};
+            moves[1] = new float[6]{dx * cosf(alpha), H * sinf(alpha), dz * cosf(alpha), 0, 0, 0};
             targets[0] = new int[6]{~i&1, i&1, ~i&1, i&1, ~i&1, i&1};
             targets[1] = new int[6]{i&1, ~i&1, i&1, ~i&1, i&1, ~i&1};
 
@@ -144,39 +139,16 @@ void BodyFrameControl::move_around(Spider &spider, const float yaw) {
 
         this->i++;
         this->last_yaw = yaw;
-
-        // Serial.printf("%d\n", this->i);
+        this->last_i = I;
     }
-
-    // float dx = A * sinf(yaw);               // parte x vector de avance
-    // float dz = A * cosf(yaw);               // parte z vector de avance
-    // float I_alpha = PI * I / (2 * A - I);   // intervalo de muestreo semielipse
-
-    // int t = 0;
-    // float alpha;
-    // float** moves = new float*[2];
-    // int** targets = new int*[2];
-    // for(float amp=-A; amp<A; amp += I) {
-    //     alpha = I_alpha * t;
-    //     moves[0] = new float[6]{ amp * sinf(yaw),               0,  amp * cosf(yaw), 0, 0, 0};
-    //     moves[1] = new float[6]{dx * cosf(alpha), h * sinf(alpha), dz * cosf(alpha), 0, 0, 0};
-    //     targets[0] = new int[6]{~i&1, i&1, ~i&1, i&1, ~i&1, i&1};
-    //     targets[1] = new int[6]{i&1, ~i&1, i&1, ~i&1, i&1, ~i&1};
-
-    //     spider.set_coords( moveBodyFrame(moves, targets, 2) );
-
-    //     t++;
-    //     delay(DELAY*1000);
-    // }
-
-    // this->i++;
 }
 
 void BodyFrameControl::finishMovement(Spider &spider) {
+    float A = this->last_i + 2.8;
     Serial.print("Finish movement...\n");
     float dx = A * sinf(this->last_yaw);               // parte x vector de avance
     float dz = A * cosf(this->last_yaw);               // parte z vector de avance
-    float I_alpha = PI * I / (2 * A - I);   // intervalo de muestreo semielipse
+    float I_alpha = PI * this->last_i / (2 * A - this->last_i);   // intervalo de muestreo semielipse
 
     int t = 0;
     float alpha;
@@ -184,10 +156,10 @@ void BodyFrameControl::finishMovement(Spider &spider) {
     int** targets = new int*[2];
 
     // si ya no se recibe información de movimiento
-    for(float amp=-A; amp<0; amp += I/2) {
+    for(float amp=-A; amp<0; amp += (this->last_i)/2) {
         alpha = I_alpha * t;
         moves[0] = new float[6]{amp * sinf(this->last_yaw),               0, amp * cosf(this->last_yaw), 0, 0, 0};
-        moves[1] = new float[6]{        dx * cosf(alpha/2), h * sinf(alpha),         dz * cosf(alpha/2), 0, 0, 0};
+        moves[1] = new float[6]{        dx * cosf(alpha/2), H * sinf(alpha),         dz * cosf(alpha/2), 0, 0, 0};
         targets[0] = new int[6]{~i&1, i&1, ~i&1, i&1, ~i&1, i&1};
         targets[1] = new int[6]{i&1, ~i&1, i&1, ~i&1, i&1, ~i&1};
 

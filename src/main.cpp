@@ -1,56 +1,13 @@
 #include <Arduino.h>
 #include <sstream>
 
+#include "config.h"
 #include "spider.h"
 #include "wifi_config.h"
 #include "body_frame_control.h"
 
-#define MAX_INTERVAL 1000
-
-int servo_input_pins[6][3] = { 
-    { 16, 17, 18 }, // pata 1
-    { 20, 21, 22 }, // pata 2
-    { 24, 25, 26 }, // pata 3
-    {  0,  1,  2 }, // pata 4
-    {  4,  5,  6 }, // pata 5
-    {  8,  9, 10 }  // pata 6 
-};
-
-float servo_home_state_angles[6][3] = {
-    { 135, 53, 10 },
-    { 142, 50, 5 },
-    { 135, 65, 15 },
-    { 135, 56, 0 },
-    { 135, 50, 10 },
-    { 130, 63, 2 }
-};
-
-int servo_min_pulse[6][3] = {
-    { 140, 140, 140 },
-    { 140, 140, 140 },
-    { 140, 140, 140 },
-    { 140, 140, 140 },
-    { 140, 140, 140 },
-    { 140, 140, 140 }
-};
-
-int servo_max_pulse[6][3] = {
-    { 560, 560, 560 },
-    { 560, 560, 560 },
-    { 560, 560, 560 },
-    { 560, 560, 560 },
-    { 560, 560, 560 },
-    { 560, 560, 560 }
-};
-
 Spider spider(servo_input_pins, servo_home_state_angles, servo_min_pulse, servo_max_pulse);
-// char ssid[] = "Maria";
-// char pswd[] = "84437158";
-char ssid[] = "Wifi_14000";
-char pswd[] = "wifi14000";
-// char ssid[] = "Kris";
-// char pswd[] = "qwer1234";
-WifiConfig wifi_config(ssid, pswd);
+WifiConfig wifi_config(SID, PSWD);
 BodyFrameControl bf_control = BodyFrameControl();
 
 void setup() 
@@ -101,7 +58,12 @@ void loop()
 
             case 'W':
             {
-                bf_control.move_around(spider, stof(task.substr(1)));
+                stringstream ss (task.substr(1));
+                string yaw, I;
+                getline (ss, yaw, ',');
+                getline (ss, I, ',');
+
+                bf_control.move_around(spider, stof(yaw), stof(I));
                 lastPacketTime = millis();
             }
                 break;
@@ -115,6 +77,6 @@ void loop()
                 break;
         }
     } else {
-        if (bf_control.isMoving() && (millis() - lastPacketTime > MAX_INTERVAL) ) bf_control.finishMovement(spider);
+        if (bf_control.isMoving() && (millis() - lastPacketTime > MAX_INTERVAL * 1000) ) bf_control.finishMovement(spider);
     }
 }
