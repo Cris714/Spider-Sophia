@@ -1,5 +1,4 @@
 #include "leg.h"
-#include "motion.h"
 
 class Spider{
     private:

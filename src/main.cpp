@@ -4,9 +4,9 @@
 
 #include "config.h"
 #include "spider.h"
+#include "body_frame_control.h"
 // #include "wifi_config.h"
 #include "wifi_ap.h"
-#include "body_frame_control.h"
 
 Spider spider(servo_input_pins, servo_home_state_angles, servo_min_pulse, servo_max_pulse);
 WifiAP wifi_ap(SID, PSWD, PORT);
@@ -35,19 +35,21 @@ void loop()
         switch(task[0]) {
             case 'C':
             {
-                stringstream ss (task.substr(1));
-                string item;
-
-                vector<vector<float>> crds(1, vector<float>(6));
-                vector<vector<int>> targets = {{1,1,1,1,1,1}};
-
-                for (int i=0; i<6; i++) {
-                    getline (ss, item, ',');
-                    crds[0][i] = stof(item);
-                }
 
 
-                spider.set_coords( bf_control.moveBodyFrame(crds, targets, 1) );
+                // stringstream ss (task.substr(1));
+                // string item;
+
+                // vector<vector<float>> crds(1, vector<float>(6));
+                // vector<vector<int>> targets = {{1,1,1,1,1,1}};
+
+                // for (int i=0; i<6; i++) {
+                //     getline (ss, item, ',');
+                //     crds[0][i] = stof(item);
+                // }
+
+
+                // spider.set_coords( bf_control.moveBodyFrame(crds, targets, 1) );
 
                 // t_point6 next_point = bf_control.moveBodyFrame(crds, targets, 1);
                 // spider.set_coords(next_point);

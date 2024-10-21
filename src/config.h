@@ -3,7 +3,7 @@
 #define MAX_INTERVAL 1 // Intervalo de espera (s)
 
 // wifi_ap
-#define SID "MANKITO32"
+#define SID "SPINARAK32"
 #define PSWD "qwer1234"
 #define PORT 3000
 

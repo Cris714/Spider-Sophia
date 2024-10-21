@@ -1,10 +1,7 @@
-#include <ArduinoEigen.h>
 #include <algorithm>
-#include <vector>
 
 using namespace std;
 using Eigen::Matrix4f;
-using Eigen::MatrixXf;
 
 #define LMT(coord) min(max(coord, -256.0f), 256.0f)
 

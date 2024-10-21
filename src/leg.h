@@ -1,6 +1,51 @@
 #include <math.h>
-
 #include "servo_control.h"
+#include <ArduinoEigen.h>
+
+using Eigen::MatrixXf;
+
+#define NTOF(x) (ntohs(x) - 32768) / 100.
+
+struct t_point {
+    float x;
+    float y;
+    float z;
+
+    t_point(const float x, const float y, const float z) {
+        this->x = x;
+        this->y = y;
+        this->z = z;
+    }
+
+    t_point() : x(0.0f), y(0.0f), z(0.0f) {}
+};
+
+struct t_point6{
+    t_point p0;
+    t_point p1;
+    t_point p2; 
+    t_point p3;
+    t_point p4;
+    t_point p5; 
+
+    t_point6(t_point p0, t_point p1, t_point p2, t_point p3, t_point p4, t_point p5){
+        this->p0 = p0;
+        this->p1 = p1;
+        this->p2 = p2;
+        this->p3 = p3;
+        this->p4 = p4;
+        this->p5 = p5;
+    }
+
+    t_point6(MatrixXf points) {
+        this->p0 = t_point( points(0, 0), points(0, 1), points(0,2) );
+        this->p1 = t_point( points(1, 0), points(1, 1), points(1,2) );
+        this->p2 = t_point( points(2, 0), points(2, 1), points(2,2) );
+        this->p3 = t_point( points(3, 0), points(3, 1), points(3,2) );
+        this->p4 = t_point( points(4, 0), points(4, 1), points(4,2) );
+        this->p5 = t_point( points(5, 0), points(5, 1), points(5,2) );
+    }
+};
 
 struct leg_state
 {
