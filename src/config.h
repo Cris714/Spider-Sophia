@@ -3,13 +3,13 @@
 #define MAX_INTERVAL 1 // Intervalo de espera (s)
 
 // wifi_ap
-#define SID "SPINARAK32"
-#define PSWD "qwer1234"
-#define PORT 3000
+// #define SID "SPINARAK32"
+// #define PSWD "qwer1234"
 
 // wifi_config
-// #define SID "Wifi_14000"
-// #define PSWD "wifi14000"
+#define SID "Wifi_14000"
+#define PSWD "wifi14000"
+#define PORT 3000
 
 // body_frame_control
 #define DELAY 0.025
@@ -38,12 +38,12 @@ const int servo_input_pins[NUM_LEGS][NUM_SERVOS_PER_LEG] = {
 };
 
 const float servo_home_state_angles[NUM_LEGS][NUM_SERVOS_PER_LEG] = {
-    { 135, 53, 10 },
-    { 142, 50, 5 },
-    { 135, 65, 15 },
-    { 135, 56, 0 },
-    { 135, 50, 10 },
-    { 130, 48, 2 }
+    { 70, 63, 5 },
+    { 57, 40, 5 },
+    { 130, 50, 10 },
+    { 130, 31, 0 },
+    { 105, 55, 10 },
+    { 120, 48, 17 }
 };
 
 const int servo_min_pulse[NUM_LEGS][NUM_SERVOS_PER_LEG] = {

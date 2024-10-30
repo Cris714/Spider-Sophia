@@ -37,12 +37,12 @@ BodyFrameControl::BodyFrameControl() {
     this->T_SB = T({0, 0, 0, 0, 0, 0});
 
     // leg-origin frame wrt body frame
-    this->T_BMs[0] = T({ 2.5, 0,  4.625, 0,  radians(-55), 0});
-    this->T_BMs[1] = T({   4, 0,      0, 0,             0, 0});
-    this->T_BMs[2] = T({ 2.5, 0, -4.625, 0, radians(-300), 0});
-    this->T_BMs[3] = T({-2.5, 0, -4.625, 0, radians(-245), 0});
-    this->T_BMs[4] = T({  -4, 0,      0, 0, radians(-180), 0});
-    this->T_BMs[5] = T({-2.5, 0,  4.625, 0, radians(-123), 0});
+    this->T_BMs[0] = T({ 3, 0,  5.25, 0,  radians(-60), 0});
+    this->T_BMs[1] = T({   6.05, 0,      0, 0,             0, 0});
+    this->T_BMs[2] = T({ 3, 0, -5.25, 0, radians(-300), 0});
+    this->T_BMs[3] = T({-3, 0, -5.25, 0, radians(-240), 0});
+    this->T_BMs[4] = T({  -6.05, 0,      0, 0, radians(-180), 0});
+    this->T_BMs[5] = T({-3, 0,  5.25, 0, radians(-120), 0});
 
     // end-effector frame wrt leg-origin frame
     for(int i=0; i<6; i++) {
