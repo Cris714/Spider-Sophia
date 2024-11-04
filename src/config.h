@@ -38,12 +38,12 @@ const int servo_input_pins[NUM_LEGS][NUM_SERVOS_PER_LEG] = {
 };
 
 const float servo_home_state_angles[NUM_LEGS][NUM_SERVOS_PER_LEG] = {
-    { 70, 63, 5 },
-    { 57, 40, 5 },
-    { 130, 50, 10 },
-    { 130, 31, 0 },
-    { 105, 55, 10 },
-    { 120, 48, 17 }
+    { 130, 33, 0 },
+    { 107, 55, 15 },
+    { 130, 50, 20 },
+    { 130, 56, 15 },
+    { 55, 35, 0 },
+    { 105, 48, 7 }
 };
 
 const int servo_min_pulse[NUM_LEGS][NUM_SERVOS_PER_LEG] = {
