@@ -4,6 +4,6 @@ ModuleBreakpoints0=
 ModuleBreakpoints1=
 ModuleClosedNodes0=1,2
 ModuleClosedNodes1=1
-NavigationStack=Main,Activity_Resume,84,0,Main,Send_Packet,170,0,Main,Mov_xz_Click,196,0,Main,js1_value_changed,111,6,Main,delayTimer_Tick,175,3,Main,joystick_action,155,2,Main,walkTimer_Tick,180,6,Main,Process_Globals,20,1,Main,Activity_Create,47,6,Main,Globals,31,6
+NavigationStack=Main,js1_value_changed,111,6,Main,delayTimer_Tick,175,3,Main,joystick_action,155,2,Main,walkTimer_Tick,180,6,Main,Process_Globals,20,1,Visual Designer,Cam.bal,-100,1,Main,Activity_Create,46,6,Visual Designer,Tabhost.bal,-100,1,Main,Globals,40,6,Main,TabHost1_TabChanged,241,6,Main,Walk_Click,235,0
 SelectedBuild=0
 VisibleModules=1

@@ -1,10 +1,12 @@
 ﻿Build1=Default,b4a.example
-File1=Connect.bal
-File2=Tabhost.bal
-File3=Tasks.bal
+File1=Cam.bal
+File2=Connect.bal
+File3=Tabhost.bal
+File4=Tasks.bal
 FileGroup1=Default Group
 FileGroup2=Default Group
 FileGroup3=Default Group
+FileGroup4=Default Group
 Group=Default Group
 Library1=core
 Library2=network
@@ -12,7 +14,7 @@ Library3=xui
 Library4=joystick
 ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: https://www.b4x.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="33"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~CreateResourceFromFile(Macro, Themes.LightTheme)~\n~'End of default text.~\n~
 Module1=Starter
-NumberOfFiles=3
+NumberOfFiles=4
 NumberOfLibraries=4
 NumberOfModules=1
 Version=12.8
@@ -57,6 +59,7 @@ Sub Globals
 	Dim Coords_info As Label
 	
 	Dim cd1, cd2 As ColorDrawable
+	Dim WebView1 As WebView
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
@@ -64,6 +67,7 @@ Sub Activity_Create(FirstTime As Boolean)
 	Activity.LoadLayout("Tabhost")
 	TabHost1.AddTab("Conn", "Connect")
 	TabHost1.AddTab("Tasks", "Tasks")
+	TabHost1.AddTab("Cam", "Cam")
 	
 	'Wifi config
 	ip.Text="192.168.4.1"
@@ -252,4 +256,10 @@ Private Sub Walk_Click
 
 	walk.Background = cd1
 	Active_Button = walk
+End Sub
+
+Private Sub TabHost1_TabChanged
+	If TabHost1.CurrentTab = 2 Then
+		WebView1.LoadUrl("http://192.168.3.107")
+	End If
 End Sub
