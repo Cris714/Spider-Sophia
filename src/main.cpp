@@ -203,7 +203,7 @@ void sendIP(String macAddr) {
 
     udp.begin(UDP_PORT);
     udp.beginPacket(BACKEND_IP, UDP_PORT);
-    String msg = "CAM" + macAddr;
+    String msg = "ESPCAM" + macAddr;
     udp.print(msg);
     udp.endPacket();
 
