@@ -18,6 +18,7 @@
 
 #include "esp_camera.h"
 #include <WiFi.h>
+#include <WiFiUdp.h>
 #include "esp_timer.h"
 #include "img_converters.h"
 #include "Arduino.h"
@@ -197,6 +198,20 @@ void startCameraServer(){
   }
 }
 
+void sendIP(String macAddr) {
+    WiFiUDP udp;
+
+    udp.begin(UDP_PORT);
+    udp.beginPacket(BACKEND_IP, UDP_PORT);
+    String msg = "CAM" + macAddr;
+    udp.print(msg);
+    udp.endPacket();
+
+    Serial.println(msg);
+    Serial.print("Sent IP to ");
+    Serial.println(BACKEND_IP);
+}
+
 void setup() {
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); //disable brownout detector
  
@@ -241,6 +256,9 @@ void setup() {
     Serial.printf("Camera init failed with error 0x%x", err);
     return;
   }
+  sensor_t * s = esp_camera_sensor_get();
+  s->set_contrast(s, 2);
+  s->set_saturation(s, -2);
   // Wi-Fi connection
   WiFi.begin(SID, PSWD);
   while (WiFi.status() != WL_CONNECTED) {
@@ -250,11 +268,15 @@ void setup() {
   Serial.println("");
   Serial.println("WiFi connected");
   
-  Serial.print("Camera Stream Ready! Go to: http://");
-  Serial.print(WiFi.localIP());
   
   // Start streaming web server
   startCameraServer();
+
+  Serial.print("Camera Stream Ready! Go to: http://");
+  Serial.println(WiFi.localIP());
+
+  sendIP(WiFi.macAddress());
+
 }
 
 void loop() {
