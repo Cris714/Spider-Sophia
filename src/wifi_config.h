@@ -9,34 +9,46 @@ class WifiConfig{
         WiFiUDP udp;
         const char* ssid;
         const char* pswd;
+        string mode;
         int udpPort;
 
+        string camIP = "";
+        string appIP = "";
+
     public:
-        WifiConfig(const char* ssid, const char* pswd, const int udpPort);
+        WifiConfig(const char* ssid, const char* pswd, const int udpPort, string mode);
         void initialize();
         string receive_packet();
+        void send_packet();
+        void verifyDeviceIP(string pckt, string IP);
 };
 
-WifiConfig::WifiConfig(const char* ssid, const char* pswd, const int udpPort){
+WifiConfig::WifiConfig(const char* ssid, const char* pswd, const int udpPort, string mode = "AP"){
     this->ssid = ssid;
     this->pswd = pswd;
     this->udpPort = udpPort;
+    this->mode = mode; // "AP" -> WifiEsp, "WIFI" -> Cualquier otra red
 }
 
 void WifiConfig::initialize(){
-    WiFi.begin(ssid, pswd);
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(1000);
-        Serial.println("Connecting to WiFi...");
-    }
-    Serial.println("Connected to WiFi");
+    if(this->mode == "AP") {
+        WiFi.softAP(ssid, pswd);
+        udp.begin(udpPort);
+        Serial.printf("Mode AP | Now listening at IP %s, UDP port %d\n", WiFi.softAPIP().toString(), udpPort);
+    } else if(this->mode == "WIFI") {
+        WiFi.begin(ssid, pswd);
+        while (WiFi.status() != WL_CONNECTED) {
+            delay(1000);
+                Serial.println("Connecting to WiFi...");
+            }
+            Serial.println("Connected to WiFi");
 
-    udp.begin(udpPort);
-    Serial.printf("Now listening at IP %s, UDP port %d\n", WiFi.localIP().toString().c_str(), udpPort);
+            udp.begin(udpPort);
+            Serial.printf("Mode WIFI | Now listening at IP %s, UDP port %d\n", WiFi.localIP().toString().c_str(), udpPort);
+        }
 }
 
 string WifiConfig::receive_packet() {
-    // udp.flush();
     // int packetSize = udp.parsePacket();
     // if (packetSize) {
     //     char packetBuffer[255];
@@ -57,11 +69,12 @@ string WifiConfig::receive_packet() {
 
     string lastPacket = "";
     int packetSize;
+    IPAddress remoteIP;
     
-    // desacrtar paquetes anteriores
+    // descartar paquetes anteriores
     while ((packetSize = udp.parsePacket()) > 0) {
         char packetBuffer[255];
-        IPAddress remoteIp = udp.remoteIP();
+        remoteIP = udp.remoteIP();
         int len = udp.read(packetBuffer, 255);
 
         if (len > 0) packetBuffer[len] = 0;
@@ -72,8 +85,32 @@ string WifiConfig::receive_packet() {
 
     // último paquete
     if (!lastPacket.empty()) {
-        Serial.printf("Received packet: %s\n", lastPacket.c_str());
+        Serial.printf("Received packet from %s: %s\n", remoteIP.toString().c_str(), lastPacket.c_str());
+
+        if(this->camIP.empty() || this->appIP.empty()) verifyDeviceIP(lastPacket, remoteIP.toString().c_str());
     }
 
     return lastPacket;
+}
+
+void WifiConfig::send_packet() {
+
+}
+
+void WifiConfig::verifyDeviceIP(string pckt, string IP) {
+    // Serial.printf("%s\n", pckt.c_str());
+    // SET ESP CAM IP
+    if(pckt.substr(0,6) == "ESPCAM" && pckt.substr(6) == MAC_ADDR_CAM) {
+        this->camIP = IP;
+        Serial.printf("CAM IP identified: %s\n", this->camIP.c_str());
+    }
+    // CONNECT APP IP
+    if(pckt[0] == 'C') {
+        this->appIP = IP;
+        Serial.printf("APP IP connected: %s\n", this->appIP.c_str());
+    } else if(pckt[0] == 'D') { // DISCONECT APP IP
+        this->appIP = "";
+        Serial.println("APP IP disconnected...");
+    }
+
 }

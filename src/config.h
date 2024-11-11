@@ -2,13 +2,22 @@
 #define NUM_SERVOS_PER_LEG 3
 #define MAX_INTERVAL 1 // Intervalo de espera (s)
 
-// wifi_ap
-#define SID "SPINARAK32"
-#define PSWD "qwer1234"
-
 // wifi_config
-// #define SID "Wifi_14000"
-// #define PSWD "wifi14000"
+#define WIFI_MODE_TYPE_AP
+// #define WIFI_MODE_TYPE_NORM
+
+#if defined(WIFI_MODE_TYPE_AP)
+    #define SID "SPINARAK32"
+    #define PSWD "qwer1234"
+    #define MODE "AP"
+#elif defined(WIFI_MODE_TYPE_NORM)
+    #define SID "Wifi_14000"
+    #define PSWD "wifi14000"
+    #define MODE "WIFI"
+#else
+  #error "Wifi mode not selected"
+#endif
+
 #define PORT 3000
 
 // body_frame_control

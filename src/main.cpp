@@ -6,11 +6,11 @@
 #include "secrets.h"
 #include "spider.h"
 #include "body_frame_control.h"
-#include "wifi_ap.h"
-// #include "wifi_config.h"
+#include "wifi_config.h"
+
 
 Spider spider(servo_input_pins, servo_home_state_angles, servo_min_pulse, servo_max_pulse);
-WifiAP wifi(SID, PSWD, PORT);
+WifiConfig wifi(SID, PSWD, PORT, MODE);
 BodyFrameControl bf_control = BodyFrameControl();
 
 void setup() 
@@ -34,7 +34,7 @@ void loop()
     if(task != "") {
 
         switch(task[0]) {
-            case 'C':
+            case 'A':
             {
 
 
@@ -74,12 +74,6 @@ void loop()
                 lastPacketTime = millis();
             }
                 break;
-
-            case 'A':
-            {
-                Serial.print("Caso A :p");
-            }
-                break;
             case 'M':
             {
                 uint16_t buff[18];
@@ -105,7 +99,6 @@ void loop()
                 Serial.printf("Received %f, %f, %f\n", next_point.p4.x, next_point.p4.y, next_point.p4.z);
                 Serial.printf("Received %f, %f, %f\n", next_point.p5.x, next_point.p5.y, next_point.p5.z);
             }
-                break;
                 break;
             default:
                 break;
