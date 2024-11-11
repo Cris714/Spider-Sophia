@@ -11,10 +11,13 @@ class WifiAP{
         const char* pswd;
         int udpPort;
 
+        string camIP = "";
+
     public:
         WifiAP(const char* ssid, const char* pswd, const int udpPort);
         void initialize();
         string receive_packet();
+        void verifyCamIP(string pckt, string IP);
 };
 
 WifiAP::WifiAP(const char* ssid, const char* pswd, const int udpPort){
@@ -50,11 +53,12 @@ string WifiAP::receive_packet() {
 
     string lastPacket = "";
     int packetSize;
+    IPAddress remoteIP;
     
     // descartar paquetes anteriores
     while ((packetSize = udp.parsePacket()) > 0) {
         char packetBuffer[255];
-        IPAddress remoteIp = udp.remoteIP();
+        remoteIP = udp.remoteIP();
         int len = udp.read(packetBuffer, 255);
 
         if (len > 0) packetBuffer[len] = 0;
@@ -65,8 +69,17 @@ string WifiAP::receive_packet() {
 
     // último paquete
     if (!lastPacket.empty()) {
-        Serial.printf("Received packet: %s\n", lastPacket.c_str());
+        Serial.printf("Received packet from %s: %s\n", remoteIP.toString().c_str(), lastPacket.c_str());
+
+        if(this->camIP.empty()) verifyCamIP(lastPacket, remoteIP.toString().c_str());
     }
 
     return lastPacket;
+}
+
+void WifiAP::verifyCamIP(string pckt, string IP) {
+    if(pckt.substr(0,6) == "ESPCAM" && pckt.substr(6) == MAC_ADDR_CAM) {
+        this->camIP = IP;
+        Serial.printf("CAM IP identified: %s\n", this->camIP);
+    }
 }

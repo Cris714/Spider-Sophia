@@ -3,12 +3,12 @@
 #define MAX_INTERVAL 1 // Intervalo de espera (s)
 
 // wifi_ap
-// #define SID "SPINARAK32"
-// #define PSWD "qwer1234"
+#define SID "SPINARAK32"
+#define PSWD "qwer1234"
 
 // wifi_config
-#define SID "Wifi_14000"
-#define PSWD "wifi14000"
+// #define SID "Wifi_14000"
+// #define PSWD "wifi14000"
 #define PORT 3000
 
 // body_frame_control
