@@ -10,7 +10,7 @@ class WifiConfig{
         const char* ssid;
         const char* pswd;
         string mode;
-        int udpPort;
+        uint16_t udpPort;
 
         string camIP = "";
         string appIP = "";
@@ -19,7 +19,7 @@ class WifiConfig{
         WifiConfig(const char* ssid, const char* pswd, const int udpPort, string mode);
         void initialize();
         string receive_packet();
-        void send_packet();
+        void send_packet(string msg, string IP);
         void verifyDeviceIP(string pckt, string IP);
 };
 
@@ -78,7 +78,14 @@ string WifiConfig::receive_packet() {
         int len = udp.read(packetBuffer, 255);
 
         if (len > 0) packetBuffer[len] = 0;
-        lastPacket = string(packetBuffer); 
+
+        verifyDeviceIP(string(packetBuffer), remoteIP.toString().c_str());
+
+        if(this->appIP.empty() || (!this->appIP.empty() && remoteIP.toString().c_str() == this->appIP)) lastPacket = string(packetBuffer); 
+        else {
+            // Serial.printf("IP infiltrada: %s\n", remoteIP.toString().c_str());
+            return "";
+        }
 
         // Serial.printf("Discarded packet from %s: %s\n", remoteIp.toString().c_str(), packetBuffer);
     }
@@ -86,31 +93,40 @@ string WifiConfig::receive_packet() {
     // último paquete
     if (!lastPacket.empty()) {
         Serial.printf("Received packet from %s: %s\n", remoteIP.toString().c_str(), lastPacket.c_str());
-
-        if(this->camIP.empty() || this->appIP.empty()) verifyDeviceIP(lastPacket, remoteIP.toString().c_str());
     }
 
     return lastPacket;
 }
 
-void WifiConfig::send_packet() {
-
+void WifiConfig::send_packet(string msg, string IP) {
+    Serial.printf("Sending packet to %s: %s\n", IP.c_str(), msg.c_str());
+    udp.beginPacket(IP.c_str(), udpPort);
+    udp.print(msg.c_str());
+    udp.endPacket();
 }
 
 void WifiConfig::verifyDeviceIP(string pckt, string IP) {
     // Serial.printf("%s\n", pckt.c_str());
     // SET ESP CAM IP
-    if(pckt.substr(0,6) == "ESPCAM" && pckt.substr(6) == MAC_ADDR_CAM) {
+    if(this->camIP.empty() && pckt.substr(0,6) == "ESPCAM" && pckt.substr(6) == MAC_ADDR_CAM) {
         this->camIP = IP;
         Serial.printf("CAM IP identified: %s\n", this->camIP.c_str());
     }
     // CONNECT APP IP
-    if(pckt[0] == 'C') {
-        this->appIP = IP;
-        Serial.printf("APP IP connected: %s\n", this->appIP.c_str());
-    } else if(pckt[0] == 'D') { // DISCONECT APP IP
-        this->appIP = "";
-        Serial.println("APP IP disconnected...");
+    if(this->appIP.empty()) {
+        if(pckt[0] == 'C') {
+            this->appIP = IP;
+            Serial.printf("APP IP connected: %s\n", this->appIP.c_str());
+            send_packet("A", IP);
+        }
+    } else  {
+        if(pckt[0] == 'C') { // Reject Connection
+            send_packet("R", IP);
+        }
+        if(pckt[0] == 'D' && this->appIP == IP) { // Disconnect APP IP
+            this->appIP = "";
+            Serial.println("APP IP disconnected...");
+        }
     }
 
 }

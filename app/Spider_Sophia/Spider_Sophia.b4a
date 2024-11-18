@@ -31,6 +31,7 @@ Version=12.8
 #Region  Activity Attributes 
 	#FullScreen: False
 	#IncludeTitle: False
+	#AdditionalRes: ../Resources
 #End Region
 
 Sub Process_Globals
@@ -39,7 +40,7 @@ Sub Process_Globals
 	Private xui As XUI
 	Private udps As UDPSocket
 	Private udpp As UDPPacket
-	Dim delayTimer, walkTimer As Timer
+	Dim delayTimer, walkTimer, responseTimer As Timer
 End Sub
 
 Sub Globals
@@ -47,7 +48,7 @@ Sub Globals
 	Dim ip, port As EditText
 	Dim serverIp, serverPort As String
 '	Dim left, right As Panel
-	Dim click_enabled As Boolean
+	Dim click_enabled, responseReceived, connected As Boolean
 	Dim TabHost1 As TabHost
 	
 	Private js1 As JoyStick
@@ -55,8 +56,8 @@ Sub Globals
 	Dim task_state As Int
 	Dim pckt As String
 	
-	Dim Active_Button, Mov_xz, Turn_phi, Mov_y, Turn_thpsi, walk As Button
-	Dim Coords_info As Label
+	Dim connect, Disconnect, Active_Button, Mov_xz, Turn_phi, Mov_y, Turn_thpsi, walk As Button
+	Dim Coords_info, IP_info As Label
 	
 	Dim cd1, cd2 As ColorDrawable
 	Dim WebView1 As WebView
@@ -72,6 +73,10 @@ Sub Activity_Create(FirstTime As Boolean)
 	'Wifi config
 	ip.Text="192.168.4.1"
 	port.Text="3000"
+	serverIp = ""
+	serverPort = ""
+	
+	Disconnect.Visible = False
 	
 	'Joystick
 	js1.ButtonDrawable = "button"
@@ -85,6 +90,7 @@ Sub Activity_Create(FirstTime As Boolean)
 	task_state = 0 ' [0]: Mov(x/z), [1]: Turn(phi), [2]: Mov(y), [3]: Turn(th/psi), [4]: Walk
 	Active_Button = Mov_xz
 
+	IP_info.Text = "Disconnected"
 	Coords_info.Text = "Ang = 0" & CRLF & _
 					   "Pwr = 0" & CRLF & _
 					   "x   = 0" & CRLF & _
@@ -95,28 +101,21 @@ Sub Activity_Create(FirstTime As Boolean)
                        "psi = 0"
 				   
 	If FirstTime Then
-		udps.Initialize("UdpSEvent", 0, 5000)
+'		udps.Initialize("UDP", 0, 5000)
+		udps.Initialize("UDP", 3000, 8192)
 		delayTimer.Initialize("delayTimer", 12)
 		walkTimer.Initialize("walkTimer", 100)
 		walkTimer.Enabled = True
+		responseTimer.Initialize("responseTimer", 5000)
 	End If
 
 End Sub
 
-Sub Activity_Resume
-
-End Sub
-
 Sub Activity_Pause (UserClosed As Boolean)
-
-End Sub
-
-Private Sub Connect_Click
-	serverIp = ip.Text
-	serverPort = port.Text
-	
-	ToastMessageShow("Connected to IP = " & serverIp & ", Port = " & serverPort, True)
-	TabHost1.CurrentTab = 1
+	If connected Then
+		Log("sent disconnect")
+		DisconnectApp
+	End If
 End Sub
 
 Sub js1_value_changed(Angle As Double, angleDegrees As Double, powr As Double)
@@ -183,14 +182,14 @@ Sub joystick_action(deg As Double, powr As Double)
 End Sub
 
 Sub transfCoords(xi As Double, yi As Double, zi As Double, th As Double, phi As Double, psi As Double) As String
-	Return "C" & Round2(xi, 2) & "," & Round2(yi, 2) & "," & Round2(zi, 2) & "," & Round2(th, 2) & "," & Round2(phi, 2) & "," & Round2(psi, 2)
+	Return "A" & Round2(xi, 2) & "," & Round2(yi, 2) & "," & Round2(zi, 2) & "," & Round2(th, 2) & "," & Round2(phi, 2) & "," & Round2(psi, 2)
 End Sub
 
 Sub Send_Packet(msg As String)
-	serverIp = ip.Text
-	serverPort = port.Text
-	udpp.Initialize(msg.GetBytes("ASCII"), serverIp, serverPort)
-	udps.Send(udpp)
+	If serverIp <> "" And serverPort <> "" Then
+		udpp.Initialize(msg.GetBytes("ASCII"), serverIp, serverPort)
+		udps.Send(udpp)
+	End If
 End Sub
 
 Sub delayTimer_Tick
@@ -261,5 +260,61 @@ End Sub
 Private Sub TabHost1_TabChanged
 	If TabHost1.CurrentTab = 2 Then
 		WebView1.LoadUrl("http://192.168.3.107")
+	End If
+End Sub
+
+Private Sub Connect_Click
+	responseReceived = False
+	udpp.Initialize("C".GetBytes("ASCII"), ip.Text, port.Text)
+	udps.Send(udpp)
+	connect.Enabled = False
+	connect.Text = "Connecting..."
+	responseTimer.Enabled = True
+	
+'	ToastMessageShow("Connected to IP = " & serverIp & ", Port = " & serverPort, True)
+End Sub
+
+Private Sub Disconnect_Click
+	DisconnectApp
+End Sub
+
+Sub DisconnectApp
+	udpp.Initialize("D".GetBytes("ASCII"), ip.Text, port.Text)
+	udps.Send(udpp)
+	ToastMessageShow("Disconnected", True)
+	Disconnect.Visible = False
+	IP_info.Text = "Disconnected"
+	connect.Visible = True
+	connect.Enabled = True
+	connect.Text = "Connect"
+	serverIp = ""
+	serverPort = ""
+	connected = False
+End Sub
+
+Sub UDP_PacketArrived (Packet As UDPPacket)
+	Dim reply_packet As String = BytesToString(Packet.Data, 0, Packet.Length, "UTF8")
+	responseReceived = True
+	
+	If reply_packet.StartsWith("A") Then
+		serverIp = ip.Text
+		serverPort = port.Text
+		IP_info.Text = "Connected to: " & serverIp & ":" & serverPort
+		
+		TabHost1.CurrentTab = 1
+		Disconnect.Visible = True
+		connect.Visible = False
+		connected = True
+	Else If reply_packet.StartsWith("R") Then
+		ToastMessageShow("Rejected connection to server", True)
+	End If
+End Sub
+
+Sub responseTimer_Tick
+	responseTimer.Enabled = False
+	If responseReceived = False Then
+		ToastMessageShow("No response from server. Please try again.", True)
+		connect.Text = "Connect"
+		connect.Enabled = True
 	End If
 End Sub
