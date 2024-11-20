@@ -16,13 +16,14 @@
 	<application
 		android:icon="@drawable/icon"
 		android:label="Spider_Sophia"
+		android:usesCleartextTraffic="true"
 		android:theme="@style/LightTheme">
 		<activity
 			android:windowSoftInputMode="stateHidden"
 			android:launchMode="singleTop"
 			android:name=".main"
 			android:label="Spider_Sophia"
-			android:screenOrientation="unspecified"
+			android:screenOrientation="landscape"
 			android:exported="true">
 			<intent-filter>
 			   <action android:name="android.intent.action.MAIN" />

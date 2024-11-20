@@ -4,6 +4,6 @@ ModuleBreakpoints0=
 ModuleBreakpoints1=
 ModuleClosedNodes0=
 ModuleClosedNodes1=1
-NavigationStack=Main,Process_Globals,15,1,Main,Send_Packet,171,0,Main,Connect_Click,260,6,Main,UDP_PacketArrived,283,4,Main,Globals,29,1,Main,responseTimer_Tick,297,0,Main,Activity_Create,57,6,Main,Activity_Pause,95,6,Main,Disconnect_Click,257,6
+NavigationStack=Main,Globals,30,5,Main,Activity_Create,78,6,Main,Process_Globals,21,3,Main,Connect_Click,249,0,Main,Walk_Click,238,0,Visual Designer,Connect.bal,-100,1,Visual Designer,Cam.bal,-100,1,Visual Designer,JoystickCam.bal,-100,6,Visual Designer,Tasks.bal,-100,6,Main,TabHost1_TabChanged,249,6
 SelectedBuild=0
 VisibleModules=1
