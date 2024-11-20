@@ -1,23 +1,22 @@
 ﻿Build1=Default,b4a.example
-File1=Cam.bal
-File2=Connect.bal
-File3=JoystickCam.bal
-File4=Tabhost.bal
-File5=Tasks.bal
+File1=Connect.bal
+File2=JoystickCam.bal
+File3=Tabhost.bal
+File4=Tasks.bal
 FileGroup1=Default Group
 FileGroup2=Default Group
 FileGroup3=Default Group
 FileGroup4=Default Group
-FileGroup5=Default Group
 Group=Default Group
 Library1=core
 Library2=joystick
 Library3=network
 Library4=xui
+Library5=webviewextras
 ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: https://www.b4x.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="33"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~SetApplicationAttribute(android:usesCleartextTraffic, "true")~\n~CreateResourceFromFile(Macro, Themes.LightTheme)~\n~'End of default text.~\n~
 Module1=Starter
-NumberOfFiles=5
-NumberOfLibraries=4
+NumberOfFiles=4
+NumberOfLibraries=5
 NumberOfModules=1
 Version=12.8
 @EndOfDesignText@
@@ -62,16 +61,21 @@ Sub Globals
 	Dim Coords_info, IP_info As Label
 	
 	Dim cd1, cd2 As ColorDrawable
-	Dim WebView1, VideoCam As WebView
+	Dim VideoCam As WebView
+	Dim WebExtras As WebViewExtras
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
 	'Tabhost
 	Activity.LoadLayout("Tabhost")
 	TabHost1.AddTab("Conn", "Connect")
-	TabHost1.AddTab("Tasks", "Tasks")
-	TabHost1.AddTab("JoystickCam", "JoystickCam")
-	TabHost1.AddTab("Cam", "Cam")
+	TabHost1.AddTab("1 JS Control", "Tasks")
+	TabHost1.AddTab("Video Control", "JoystickCam")
+	
+	'Initialize VideoCam
+	WebExtras.addJavascriptInterface(VideoCam, "javascript")
+	VideoCam.LoadUrl("http://192.168.3.107")
+	
 	
 	'Wifi config
 	ip.Text="192.168.4.1"
@@ -266,9 +270,9 @@ End Sub
 
 Private Sub TabHost1_TabChanged
 	If TabHost1.CurrentTab = 2 Then
-		VideoCam.LoadUrl("http://www.google.com")
-	Else If TabHost1.CurrentTab = 3 Then
-		WebView1.LoadUrl("http://192.168.3.107")
+		VideoCam.LoadUrl("http://192.168.3.107")
+		WebExtras.executeJavascript(VideoCam, "document.body.style.transform = 'scale(0.65)';" & _
+		 "document.body.style.transformOrigin = '0 0';")
 	End If
 End Sub
 
