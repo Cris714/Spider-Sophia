@@ -9,6 +9,7 @@ C:\Users\isido\AppData\Local\Android\Sdk\tools\..\extras\b4a_local\unpacked-joys
 C:\Users\isido\AppData\Local\Android\Sdk\tools\..\extras\b4a_local\unpacked-network-63837492158000\dex_v1\network.zip
 C:\Users\isido\AppData\Local\Android\Sdk\tools\..\extras\b4a_local\unpacked-xui-63837492158000\dex_v1\xui.zip
 C:\Users\isido\AppData\Local\Android\Sdk\tools\..\extras\b4a_local\unpacked-webviewextras-63854775668571\dex_v1\webviewextras.zip
+C:\Users\isido\Documents\Spider-Sophia\app\Spider_Sophia\Objects\dexed\b4a\example\jscontrol.dex
 C:\Users\isido\Documents\Spider-Sophia\app\Spider_Sophia\Objects\dexed\b4a\example\main$1.dex
 C:\Users\isido\Documents\Spider-Sophia\app\Spider_Sophia\Objects\dexed\b4a\example\main$B4AMenuItemsClickListener.dex
 C:\Users\isido\Documents\Spider-Sophia\app\Spider_Sophia\Objects\dexed\b4a\example\main$HandleKeyDelayed.dex

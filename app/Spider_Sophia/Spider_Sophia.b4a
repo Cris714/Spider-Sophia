@@ -14,10 +14,11 @@ Library3=network
 Library4=xui
 Library5=webviewextras
 ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: https://www.b4x.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="33"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~SetApplicationAttribute(android:usesCleartextTraffic, "true")~\n~CreateResourceFromFile(Macro, Themes.LightTheme)~\n~'End of default text.~\n~
-Module1=Starter
+Module1=|relative|..\JSControl
+Module2=Starter
 NumberOfFiles=4
 NumberOfLibraries=5
-NumberOfModules=1
+NumberOfModules=2
 Version=12.8
 @EndOfDesignText@
 #Region  Project Attributes 
@@ -52,9 +53,9 @@ Sub Globals
 	Dim click_enabled, responseReceived, connected As Boolean
 	Dim TabHost1 As TabHost
 	
-	Private js1, Joystick1, Joystick2 As JoyStick
-	Dim radio, ang, pwr, x, y, z, thx, thy, thz As Float
-	Dim task_state As Int
+	Dim js1, walkJS, turnJS As JoyStick
+	Dim js, walkControl, turnControl As JSControl
+	Dim task_state, js_mode As Int
 	Dim pckt As String
 	
 	Dim connect, Disconnect, Active_Button, Mov_xz, Turn_phi, Mov_y, Turn_thpsi, walk As Button
@@ -63,6 +64,7 @@ Sub Globals
 	Dim cd1, cd2 As ColorDrawable
 	Dim VideoCam As WebView
 	Dim WebExtras As WebViewExtras
+	Dim Spinner1 As Spinner
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
@@ -88,10 +90,14 @@ Sub Activity_Create(FirstTime As Boolean)
 	'Joystick
 	js1.ButtonDrawable = "button"
 	js1.PadBackground = "pad"
-	Joystick1.ButtonDrawable = "button"
-	Joystick1.PadBackground = "pad"
-	Joystick2.ButtonDrawable = "button"
-	Joystick2.PadBackground = "pad"
+	walkJS.ButtonDrawable = "button"
+	walkJS.PadBackground = "pad"
+	turnJS.ButtonDrawable = "button"
+	turnJS.PadBackground = "pad"
+	
+	js.Initialize
+	walkControl.Initialize
+	turnControl.Initialize
 	
 	'Button init
 	cd1.Initialize(Colors.RGB(231, 102, 136), 10dip)
@@ -110,9 +116,12 @@ Sub Activity_Create(FirstTime As Boolean)
                        "th  = 0" & CRLF & _
                        "phi = 0" & CRLF & _
                        "psi = 0"
+					   
+	'Mode Selection Joystick2
+	Spinner1.AddAll(Array As String("Turn", "Mov(x/z)", "Turn(phi)", "Up/Down", "Dance"))
+	js_mode = 4 'Turn
 				   
 	If FirstTime Then
-'		udps.Initialize("UDP", 0, 5000)
 		udps.Initialize("UDP", 3000, 8192)
 		delayTimer.Initialize("delayTimer", 12)
 		walkTimer.Initialize("walkTimer", 100)
@@ -129,72 +138,7 @@ Sub Activity_Pause (UserClosed As Boolean)
 	End If
 End Sub
 
-Sub js1_value_changed(Angle As Double, angleDegrees As Double, powr As Double)
-	ang = Angle - cPI / 2
-	If ang < (-cPI) Then ang = ang + 2*cPI
-	pwr = powr
-	joystick_action(ang, pwr)
-	
-	Coords_info.Text = "Ang = " & Round2(ang, 2) & CRLF & _
-					   "Pwr = " & Round2(pwr, 2) & CRLF & _
-					   "x   = " & Round2(x, 2) & CRLF & _
-                       "y   = " & Round2(y, 2) & CRLF & _
-                   	   "z   = " & Round2(z, 2) & CRLF & _
-                       "th  = " & Round2(thx, 2) & CRLF & _
-                       "phi = " & Round2(thy, 2) & CRLF & _
-                       "psi = " & Round2(thz, 2)
-	
-	If click_enabled And task_state <> 4 Then
-		delayTimer.Enabled = True
-		click_enabled = False
-		
-		If task_state = 0 And (x <> 0 Or z <> 0) Then
-			pckt = transfCoords(x, 0, z, 0, 0, 0)
-		Else If task_state = 1 And thy <> 0 Then
-			pckt = transfCoords(0, 0, 0, 0, thy, 0)
-		Else If task_state = 2 And y <> 0 Then
-			pckt = transfCoords(0, y+1, 0, 0, 0, 0)
-		Else If task_state = 3 And (thx <> 0 Or thz <> 0) Then
-			pckt = transfCoords(0, 0, 0, thx, 0, thz)
-		End If
-		
-		Log(pckt)
-		Send_Packet(pckt)
-		
-	End If
-	
-End Sub
-
-Sub joystick_action(deg As Double, powr As Double)
-	If task_state = 0 Then 'Mov(x/z)
-		radio = powr / 100 * 4
-	
-		x = Min( Max(radio * Sin(deg), -4), 4 )
-		z = Min( Max(radio * Cos(deg), -4), 4 )
-		
-	Else If task_state = 1 Then 'Turn(phi)
-		Dim radlmt As Float= 20 * (cPI / 180)
-		radio = powr / 100 * radlmt
-		
-		thy = Min( Max(radio * Sin (deg), -radlmt), radlmt )
-		
-	Else If task_state = 2 Then 'Mov(y)
-		radio = powr / 100 * 4 '( 5 - (-3) ) / 2
-		y = Min( Max(radio * Cos (deg), -4), 4 )
-		
-	Else If task_state = 3 Then 'Turn(th/psi)
-		Dim radlmt As Float= 20 * (cPI / 180)
-		radio = powr / 100 * radlmt
-		
-		thx = Min( Max(radio * Sin (deg), -radlmt), radlmt )
-		thz = Min( Max(radio * Cos (deg), -radlmt), radlmt )
-	End If
-
-End Sub
-
-Sub transfCoords(xi As Double, yi As Double, zi As Double, th As Double, phi As Double, psi As Double) As String
-	Return "A" & Round2(xi, 2) & "," & Round2(yi, 2) & "," & Round2(zi, 2) & "," & Round2(th, 2) & "," & Round2(phi, 2) & "," & Round2(psi, 2)
-End Sub
+#Region Packet
 
 Sub Send_Packet(msg As String)
 	If serverIp <> "" And serverPort <> "" Then
@@ -209,14 +153,16 @@ Sub delayTimer_Tick
 End Sub
 
 Sub walkTimer_Tick
-	If task_state = 4 And pwr <> 0 Then
-		radio = Max( pwr / 100 * 1.2, 0.2)
-		pckt = "W" & Round2(ang, 2) & "," & Round2(radio, 2)
-		
+	pckt = js.GetWalkPckt(task_state)
+	If pckt <> "" Then
 		Log(pckt)
 		Send_Packet(pckt)
 	End If
 End Sub
+
+#End Region
+
+#Region Buttons
 
 Private Sub Mov_xz_Click
 	Active_Button.Background = cd2
@@ -268,13 +214,17 @@ Private Sub Walk_Click
 	Active_Button = walk
 End Sub
 
+#End Region
+
 Private Sub TabHost1_TabChanged
-	If TabHost1.CurrentTab = 2 Then
+	If TabHost1.CurrentTab = 2 Then 'Camera Page
 		VideoCam.LoadUrl("http://192.168.3.107")
 		WebExtras.executeJavascript(VideoCam, "document.body.style.transform = 'scale(0.65)';" & _
 		 "document.body.style.transformOrigin = '0 0';")
 	End If
 End Sub
+
+#Region Connection
 
 Private Sub Connect_Click
 	responseReceived = False
@@ -329,5 +279,79 @@ Sub responseTimer_Tick
 		ToastMessageShow("No response from server. Please try again.", True)
 		connect.Text = "Connect"
 		connect.Enabled = True
+	End If
+End Sub
+
+#End Region
+
+#Region Joystick
+
+Sub js1_value_changed(Angle As Double, angleDegrees As Double, powr As Double)
+	js.SetValues(Angle, powr)
+	js.Joystick_Action(task_state)
+	
+	Coords_info.Text = js.GetInfo
+	
+	If click_enabled And task_state <> 4 Then
+		delayTimer.Enabled = True
+		click_enabled = False
+		
+		pckt = js.GetPckt(task_state)
+		
+		If pckt <> "" Then
+			Log(pckt)
+			Send_Packet(pckt)
+		End If
+		
+	End If
+	
+End Sub
+
+Private Sub walkJS_value_changed(angle As Double, angleDegrees As Double, powr As Double)
+	walkControl.SetValues(angle, powr)
+	
+	'Calcular cosas pa caminar
+	'Capturar info de que se gira con el joystick2
+	
+	If click_enabled Then
+		delayTimer.Enabled = True
+		click_enabled = False
+		
+		pckt = "caminar"
+		If js_mode = 4 And turnControl.powr <> 0 Then
+			pckt = pckt & " y girar"
+		End If
+		
+		If pckt <> "" Then
+			Log(pckt)
+			Send_Packet(pckt)
+		End If
+	End If
+End Sub
+
+Private Sub turnJS_value_changed(angle As Double, angleDegrees As Double, powr As Double)
+	turnControl.SetValues(angle, powr)
+	turnControl.Joystick_Action(js_mode)
+	
+	If click_enabled And js_mode <> 4 And walkControl.powr = 0 Then
+		delayTimer.Enabled = True
+		click_enabled = False
+		
+		pckt = turnControl.GetPckt(js_mode)
+		
+		If pckt <> "" Then
+			Log(pckt)
+			Send_Packet(pckt)
+		End If
+		
+	End If
+End Sub
+
+#End Region
+
+Private Sub Spinner1_ItemClick (Position As Int, Value As Object)
+	js_mode = Position - 1
+	If js_mode = -1 Then
+		js_mode = 4
 	End If
 End Sub

@@ -1,9 +1,12 @@
 ﻿ModuleBookmarks0=
 ModuleBookmarks1=
+ModuleBookmarks2=
 ModuleBreakpoints0=
 ModuleBreakpoints1=
-ModuleClosedNodes0=
-ModuleClosedNodes1=1
-NavigationStack=Main,Turn_thpsi_Click,233,0,Main,UDP_PacketArrived,299,0,Main,responseTimer_Tick,307,0,Main,Globals,43,4,Main,Activity_Create,49,6,Main,Connect_Click,261,0,Visual Designer,JoystickCam.bal,-100,6,Main,TabHost1_TabChanged,252,6,Main,Walk_Click,243,0
+ModuleBreakpoints2=
+ModuleClosedNodes0=1,2,3,6,8,9,10,12
+ModuleClosedNodes1=
+ModuleClosedNodes2=1
+NavigationStack=Main,delayTimer_Tick,130,0,Main,walkTimer_Tick,131,6,JSControl,GetPckt,57,6,Visual Designer,JoystickCam.bal,-100,4,Main,js1_value_changed,286,6,Main,Globals,33,4,Main,Activity_Create,76,5,Main,walkJS_value_changed,299,4,Main,turnJS_value_changed,312,5,JSControl,GetWalkPckt,68,2,JSControl,Joystick_Action,35,0
 SelectedBuild=0
 VisibleModules=1
