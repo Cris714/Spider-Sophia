@@ -448,8 +448,8 @@ if (_firsttime) {
 _udps.Initialize(processBA,"UDP",(int) (3000),(int) (8192));
  //BA.debugLineNum = 103;BA.debugLine="delayTimer.Initialize(\"delayTimer\", 12)";
 _delaytimer.Initialize(processBA,"delayTimer",(long) (12));
- //BA.debugLineNum = 104;BA.debugLine="walkTimer.Initialize(\"walkTimer\", 100)";
-_walktimer.Initialize(processBA,"walkTimer",(long) (100));
+ //BA.debugLineNum = 104;BA.debugLine="walkTimer.Initialize(\"walkTimer\", 25)";
+_walktimer.Initialize(processBA,"walkTimer",(long) (25));
  //BA.debugLineNum = 105;BA.debugLine="walkTimer.Enabled = True";
 _walktimer.setEnabled(anywheresoftware.b4a.keywords.Common.True);
  //BA.debugLineNum = 106;BA.debugLine="responseTimer.Initialize(\"responseTimer\", 5000)";
@@ -463,7 +463,7 @@ public static String  _activity_pause(boolean _userclosed) throws Exception{
  //BA.debugLineNum = 112;BA.debugLine="If connected Then";
 if (_connected) { 
  //BA.debugLineNum = 113;BA.debugLine="Log(\"sent disconnect\")";
-anywheresoftware.b4a.keywords.Common.LogImpl("4196610","sent disconnect",0);
+anywheresoftware.b4a.keywords.Common.LogImpl("3196610","sent disconnect",0);
  //BA.debugLineNum = 114;BA.debugLine="DisconnectApp";
 _disconnectapp();
  };
@@ -471,20 +471,20 @@ _disconnectapp();
 return "";
 }
 public static String  _connect_click() throws Exception{
- //BA.debugLineNum = 206;BA.debugLine="Private Sub Connect_Click";
- //BA.debugLineNum = 207;BA.debugLine="responseReceived = False";
+ //BA.debugLineNum = 210;BA.debugLine="Private Sub Connect_Click";
+ //BA.debugLineNum = 211;BA.debugLine="responseReceived = False";
 _responsereceived = anywheresoftware.b4a.keywords.Common.False;
- //BA.debugLineNum = 208;BA.debugLine="udpp.Initialize(\"C\".GetBytes(\"ASCII\"), ip.Text, p";
+ //BA.debugLineNum = 212;BA.debugLine="udpp.Initialize(\"C\".GetBytes(\"ASCII\"), ip.Text, p";
 _udpp.Initialize("C".getBytes("ASCII"),mostCurrent._ip.getText(),(int)(Double.parseDouble(mostCurrent._port.getText())));
- //BA.debugLineNum = 209;BA.debugLine="udps.Send(udpp)";
+ //BA.debugLineNum = 213;BA.debugLine="udps.Send(udpp)";
 _udps.Send(_udpp);
- //BA.debugLineNum = 210;BA.debugLine="connect.Enabled = False";
+ //BA.debugLineNum = 214;BA.debugLine="connect.Enabled = False";
 mostCurrent._connect.setEnabled(anywheresoftware.b4a.keywords.Common.False);
- //BA.debugLineNum = 211;BA.debugLine="connect.Text = \"Connecting...\"";
+ //BA.debugLineNum = 215;BA.debugLine="connect.Text = \"Connecting...\"";
 mostCurrent._connect.setText(BA.ObjectToCharSequence("Connecting..."));
- //BA.debugLineNum = 212;BA.debugLine="responseTimer.Enabled = True";
+ //BA.debugLineNum = 216;BA.debugLine="responseTimer.Enabled = True";
 _responsetimer.setEnabled(anywheresoftware.b4a.keywords.Common.True);
- //BA.debugLineNum = 215;BA.debugLine="End Sub";
+ //BA.debugLineNum = 219;BA.debugLine="End Sub";
 return "";
 }
 public static String  _delaytimer_tick() throws Exception{
@@ -497,37 +497,37 @@ _click_enabled = anywheresoftware.b4a.keywords.Common.True;
 return "";
 }
 public static String  _disconnect_click() throws Exception{
- //BA.debugLineNum = 217;BA.debugLine="Private Sub Disconnect_Click";
- //BA.debugLineNum = 218;BA.debugLine="DisconnectApp";
+ //BA.debugLineNum = 221;BA.debugLine="Private Sub Disconnect_Click";
+ //BA.debugLineNum = 222;BA.debugLine="DisconnectApp";
 _disconnectapp();
- //BA.debugLineNum = 219;BA.debugLine="End Sub";
+ //BA.debugLineNum = 223;BA.debugLine="End Sub";
 return "";
 }
 public static String  _disconnectapp() throws Exception{
- //BA.debugLineNum = 221;BA.debugLine="Sub DisconnectApp";
- //BA.debugLineNum = 222;BA.debugLine="udpp.Initialize(\"D\".GetBytes(\"ASCII\"), ip.Text, p";
+ //BA.debugLineNum = 225;BA.debugLine="Sub DisconnectApp";
+ //BA.debugLineNum = 226;BA.debugLine="udpp.Initialize(\"D\".GetBytes(\"ASCII\"), ip.Text, p";
 _udpp.Initialize("D".getBytes("ASCII"),mostCurrent._ip.getText(),(int)(Double.parseDouble(mostCurrent._port.getText())));
- //BA.debugLineNum = 223;BA.debugLine="udps.Send(udpp)";
+ //BA.debugLineNum = 227;BA.debugLine="udps.Send(udpp)";
 _udps.Send(_udpp);
- //BA.debugLineNum = 224;BA.debugLine="ToastMessageShow(\"Disconnected\", True)";
+ //BA.debugLineNum = 228;BA.debugLine="ToastMessageShow(\"Disconnected\", True)";
 anywheresoftware.b4a.keywords.Common.ToastMessageShow(BA.ObjectToCharSequence("Disconnected"),anywheresoftware.b4a.keywords.Common.True);
- //BA.debugLineNum = 225;BA.debugLine="Disconnect.Visible = False";
+ //BA.debugLineNum = 229;BA.debugLine="Disconnect.Visible = False";
 mostCurrent._disconnect.setVisible(anywheresoftware.b4a.keywords.Common.False);
- //BA.debugLineNum = 226;BA.debugLine="IP_info.Text = \"Disconnected\"";
+ //BA.debugLineNum = 230;BA.debugLine="IP_info.Text = \"Disconnected\"";
 mostCurrent._ip_info.setText(BA.ObjectToCharSequence("Disconnected"));
- //BA.debugLineNum = 227;BA.debugLine="connect.Visible = True";
+ //BA.debugLineNum = 231;BA.debugLine="connect.Visible = True";
 mostCurrent._connect.setVisible(anywheresoftware.b4a.keywords.Common.True);
- //BA.debugLineNum = 228;BA.debugLine="connect.Enabled = True";
+ //BA.debugLineNum = 232;BA.debugLine="connect.Enabled = True";
 mostCurrent._connect.setEnabled(anywheresoftware.b4a.keywords.Common.True);
- //BA.debugLineNum = 229;BA.debugLine="connect.Text = \"Connect\"";
+ //BA.debugLineNum = 233;BA.debugLine="connect.Text = \"Connect\"";
 mostCurrent._connect.setText(BA.ObjectToCharSequence("Connect"));
- //BA.debugLineNum = 230;BA.debugLine="serverIp = \"\"";
+ //BA.debugLineNum = 234;BA.debugLine="serverIp = \"\"";
 mostCurrent._serverip = "";
- //BA.debugLineNum = 231;BA.debugLine="serverPort = \"\"";
+ //BA.debugLineNum = 235;BA.debugLine="serverPort = \"\"";
 mostCurrent._serverport = "";
- //BA.debugLineNum = 232;BA.debugLine="connected = False";
+ //BA.debugLineNum = 236;BA.debugLine="connected = False";
 _connected = anywheresoftware.b4a.keywords.Common.False;
- //BA.debugLineNum = 233;BA.debugLine="End Sub";
+ //BA.debugLineNum = 237;BA.debugLine="End Sub";
 return "";
 }
 public static String  _globals() throws Exception{
@@ -582,30 +582,30 @@ mostCurrent._spinner1 = new anywheresoftware.b4a.objects.SpinnerWrapper();
 return "";
 }
 public static String  _js1_value_changed(double _angle,double _angledegrees,double _powr) throws Exception{
- //BA.debugLineNum = 266;BA.debugLine="Sub js1_value_changed(Angle As Double, angleDegree";
- //BA.debugLineNum = 267;BA.debugLine="js.SetValues(Angle, powr)";
+ //BA.debugLineNum = 270;BA.debugLine="Sub js1_value_changed(Angle As Double, angleDegree";
+ //BA.debugLineNum = 271;BA.debugLine="js.SetValues(Angle, powr)";
 mostCurrent._js._setvalues /*String*/ (_angle,_powr);
- //BA.debugLineNum = 268;BA.debugLine="js.Joystick_Action(task_state)";
+ //BA.debugLineNum = 272;BA.debugLine="js.Joystick_Action(task_state)";
 mostCurrent._js._joystick_action /*String*/ (_task_state);
- //BA.debugLineNum = 270;BA.debugLine="Coords_info.Text = js.GetInfo";
+ //BA.debugLineNum = 274;BA.debugLine="Coords_info.Text = js.GetInfo";
 mostCurrent._coords_info.setText(BA.ObjectToCharSequence(mostCurrent._js._getinfo /*String*/ ()));
- //BA.debugLineNum = 272;BA.debugLine="If click_enabled And task_state <> 4 Then";
+ //BA.debugLineNum = 276;BA.debugLine="If click_enabled And task_state <> 4 Then";
 if (_click_enabled && _task_state!=4) { 
- //BA.debugLineNum = 273;BA.debugLine="delayTimer.Enabled = True";
+ //BA.debugLineNum = 277;BA.debugLine="delayTimer.Enabled = True";
 _delaytimer.setEnabled(anywheresoftware.b4a.keywords.Common.True);
- //BA.debugLineNum = 274;BA.debugLine="click_enabled = False";
+ //BA.debugLineNum = 278;BA.debugLine="click_enabled = False";
 _click_enabled = anywheresoftware.b4a.keywords.Common.False;
- //BA.debugLineNum = 276;BA.debugLine="pckt = js.GetPckt(task_state)";
+ //BA.debugLineNum = 280;BA.debugLine="pckt = js.GetPckt(task_state)";
 mostCurrent._pckt = mostCurrent._js._getpckt /*String*/ (_task_state);
- //BA.debugLineNum = 278;BA.debugLine="If pckt <> \"\" Then";
+ //BA.debugLineNum = 282;BA.debugLine="If pckt <> \"\" Then";
 if ((mostCurrent._pckt).equals("") == false) { 
- //BA.debugLineNum = 279;BA.debugLine="Log(pckt)";
-anywheresoftware.b4a.keywords.Common.LogImpl("4262157",mostCurrent._pckt,0);
- //BA.debugLineNum = 280;BA.debugLine="Send_Packet(pckt)";
+ //BA.debugLineNum = 283;BA.debugLine="Log(pckt)";
+anywheresoftware.b4a.keywords.Common.LogImpl("31114125",mostCurrent._pckt,0);
+ //BA.debugLineNum = 284;BA.debugLine="Send_Packet(pckt)";
 _send_packet(mostCurrent._pckt);
  };
  };
- //BA.debugLineNum = 285;BA.debugLine="End Sub";
+ //BA.debugLineNum = 289;BA.debugLine="End Sub";
 return "";
 }
 public static String  _mov_xz_click() throws Exception{
@@ -615,7 +615,7 @@ mostCurrent._active_button.setBackground((android.graphics.drawable.Drawable)(mo
  //BA.debugLineNum = 147;BA.debugLine="task_state = 0";
 _task_state = (int) (0);
  //BA.debugLineNum = 148;BA.debugLine="Log(\"Mov(x/z)\")";
-anywheresoftware.b4a.keywords.Common.LogImpl("4655364","Mov(x/z)",0);
+anywheresoftware.b4a.keywords.Common.LogImpl("3262148","Mov(x/z)",0);
  //BA.debugLineNum = 150;BA.debugLine="Mov_xz.Background = cd1";
 mostCurrent._mov_xz.setBackground((android.graphics.drawable.Drawable)(mostCurrent._cd1.getObject()));
  //BA.debugLineNum = 151;BA.debugLine="Active_Button = Mov_xz";
@@ -630,7 +630,7 @@ mostCurrent._active_button.setBackground((android.graphics.drawable.Drawable)(mo
  //BA.debugLineNum = 167;BA.debugLine="task_state = 2";
 _task_state = (int) (2);
  //BA.debugLineNum = 168;BA.debugLine="Log(\"Mov(y)\")";
-anywheresoftware.b4a.keywords.Common.LogImpl("4786436","Mov(y)",0);
+anywheresoftware.b4a.keywords.Common.LogImpl("3393220","Mov(y)",0);
  //BA.debugLineNum = 170;BA.debugLine="Mov_y.Background = cd1";
 mostCurrent._mov_y.setBackground((android.graphics.drawable.Drawable)(mostCurrent._cd1.getObject()));
  //BA.debugLineNum = 171;BA.debugLine="Active_Button = Mov_y";
@@ -666,20 +666,27 @@ _responsetimer = new anywheresoftware.b4a.objects.Timer();
  //BA.debugLineNum = 23;BA.debugLine="End Sub";
 return "";
 }
+public static String  _reset_click() throws Exception{
+ //BA.debugLineNum = 194;BA.debugLine="Private Sub Reset_Click";
+ //BA.debugLineNum = 195;BA.debugLine="Send_Packet(\"A0,0,0,0,0,0\")";
+_send_packet("A0,0,0,0,0,0");
+ //BA.debugLineNum = 196;BA.debugLine="End Sub";
+return "";
+}
 public static String  _responsetimer_tick() throws Exception{
- //BA.debugLineNum = 253;BA.debugLine="Sub responseTimer_Tick";
- //BA.debugLineNum = 254;BA.debugLine="responseTimer.Enabled = False";
+ //BA.debugLineNum = 257;BA.debugLine="Sub responseTimer_Tick";
+ //BA.debugLineNum = 258;BA.debugLine="responseTimer.Enabled = False";
 _responsetimer.setEnabled(anywheresoftware.b4a.keywords.Common.False);
- //BA.debugLineNum = 255;BA.debugLine="If responseReceived = False Then";
+ //BA.debugLineNum = 259;BA.debugLine="If responseReceived = False Then";
 if (_responsereceived==anywheresoftware.b4a.keywords.Common.False) { 
- //BA.debugLineNum = 256;BA.debugLine="ToastMessageShow(\"No response from server. Pleas";
+ //BA.debugLineNum = 260;BA.debugLine="ToastMessageShow(\"No response from server. Pleas";
 anywheresoftware.b4a.keywords.Common.ToastMessageShow(BA.ObjectToCharSequence("No response from server. Please try again."),anywheresoftware.b4a.keywords.Common.True);
- //BA.debugLineNum = 257;BA.debugLine="connect.Text = \"Connect\"";
+ //BA.debugLineNum = 261;BA.debugLine="connect.Text = \"Connect\"";
 mostCurrent._connect.setText(BA.ObjectToCharSequence("Connect"));
- //BA.debugLineNum = 258;BA.debugLine="connect.Enabled = True";
+ //BA.debugLineNum = 262;BA.debugLine="connect.Enabled = True";
 mostCurrent._connect.setEnabled(anywheresoftware.b4a.keywords.Common.True);
  };
- //BA.debugLineNum = 260;BA.debugLine="End Sub";
+ //BA.debugLineNum = 264;BA.debugLine="End Sub";
 return "";
 }
 public static String  _send_packet(String _msg) throws Exception{
@@ -695,27 +702,27 @@ _udps.Send(_udpp);
 return "";
 }
 public static String  _spinner1_itemclick(int _position,Object _value) throws Exception{
- //BA.debugLineNum = 329;BA.debugLine="Private Sub Spinner1_ItemClick (Position As Int, V";
- //BA.debugLineNum = 330;BA.debugLine="js_mode = Position - 1";
+ //BA.debugLineNum = 333;BA.debugLine="Private Sub Spinner1_ItemClick (Position As Int, V";
+ //BA.debugLineNum = 334;BA.debugLine="js_mode = Position - 1";
 _js_mode = (int) (_position-1);
- //BA.debugLineNum = 331;BA.debugLine="If js_mode = -1 Then";
+ //BA.debugLineNum = 335;BA.debugLine="If js_mode = -1 Then";
 if (_js_mode==-1) { 
- //BA.debugLineNum = 332;BA.debugLine="js_mode = 4";
+ //BA.debugLineNum = 336;BA.debugLine="js_mode = 4";
 _js_mode = (int) (4);
  };
- //BA.debugLineNum = 334;BA.debugLine="End Sub";
+ //BA.debugLineNum = 338;BA.debugLine="End Sub";
 return "";
 }
 public static String  _tabhost1_tabchanged() throws Exception{
- //BA.debugLineNum = 196;BA.debugLine="Private Sub TabHost1_TabChanged";
- //BA.debugLineNum = 197;BA.debugLine="If TabHost1.CurrentTab = 2 Then 'Camera Page";
+ //BA.debugLineNum = 200;BA.debugLine="Private Sub TabHost1_TabChanged";
+ //BA.debugLineNum = 201;BA.debugLine="If TabHost1.CurrentTab = 2 Then 'Camera Page";
 if (mostCurrent._tabhost1.getCurrentTab()==2) { 
- //BA.debugLineNum = 198;BA.debugLine="VideoCam.LoadUrl(\"http://192.168.3.107\")";
+ //BA.debugLineNum = 202;BA.debugLine="VideoCam.LoadUrl(\"http://192.168.3.107\")";
 mostCurrent._videocam.LoadUrl("http://192.168.3.107");
- //BA.debugLineNum = 199;BA.debugLine="WebExtras.executeJavascript(VideoCam, \"document.";
+ //BA.debugLineNum = 203;BA.debugLine="WebExtras.executeJavascript(VideoCam, \"document.";
 mostCurrent._webextras.executeJavascript((android.webkit.WebView)(mostCurrent._videocam.getObject()),"document.body.style.transform = 'scale(0.65)';"+"document.body.style.transformOrigin = '0 0';");
  };
- //BA.debugLineNum = 202;BA.debugLine="End Sub";
+ //BA.debugLineNum = 206;BA.debugLine="End Sub";
 return "";
 }
 public static String  _turn_phi_click() throws Exception{
@@ -725,7 +732,7 @@ mostCurrent._active_button.setBackground((android.graphics.drawable.Drawable)(mo
  //BA.debugLineNum = 157;BA.debugLine="task_state = 1";
 _task_state = (int) (1);
  //BA.debugLineNum = 158;BA.debugLine="Log(\"Turn(phi)\")";
-anywheresoftware.b4a.keywords.Common.LogImpl("4720900","Turn(phi)",0);
+anywheresoftware.b4a.keywords.Common.LogImpl("3327684","Turn(phi)",0);
  //BA.debugLineNum = 160;BA.debugLine="Turn_phi.Background = cd1";
 mostCurrent._turn_phi.setBackground((android.graphics.drawable.Drawable)(mostCurrent._cd1.getObject()));
  //BA.debugLineNum = 161;BA.debugLine="Active_Button = Turn_phi";
@@ -740,7 +747,7 @@ mostCurrent._active_button.setBackground((android.graphics.drawable.Drawable)(mo
  //BA.debugLineNum = 177;BA.debugLine="task_state = 3";
 _task_state = (int) (3);
  //BA.debugLineNum = 178;BA.debugLine="Log(\"Turn(th/psi)\")";
-anywheresoftware.b4a.keywords.Common.LogImpl("4851972","Turn(th/psi)",0);
+anywheresoftware.b4a.keywords.Common.LogImpl("3458756","Turn(th/psi)",0);
  //BA.debugLineNum = 180;BA.debugLine="Turn_thpsi.Background = cd1";
 mostCurrent._turn_thpsi.setBackground((android.graphics.drawable.Drawable)(mostCurrent._cd1.getObject()));
  //BA.debugLineNum = 181;BA.debugLine="Active_Button = Turn_thpsi";
@@ -749,58 +756,58 @@ mostCurrent._active_button = mostCurrent._turn_thpsi;
 return "";
 }
 public static String  _turnjs_value_changed(double _angle,double _angledegrees,double _powr) throws Exception{
- //BA.debugLineNum = 309;BA.debugLine="Private Sub turnJS_value_changed(angle As Double,";
- //BA.debugLineNum = 310;BA.debugLine="turnControl.SetValues(angle, powr)";
+ //BA.debugLineNum = 313;BA.debugLine="Private Sub turnJS_value_changed(angle As Double,";
+ //BA.debugLineNum = 314;BA.debugLine="turnControl.SetValues(angle, powr)";
 mostCurrent._turncontrol._setvalues /*String*/ (_angle,_powr);
- //BA.debugLineNum = 311;BA.debugLine="turnControl.Joystick_Action(js_mode)";
+ //BA.debugLineNum = 315;BA.debugLine="turnControl.Joystick_Action(js_mode)";
 mostCurrent._turncontrol._joystick_action /*String*/ (_js_mode);
- //BA.debugLineNum = 313;BA.debugLine="If click_enabled And js_mode <> 4 And walkControl";
+ //BA.debugLineNum = 317;BA.debugLine="If click_enabled And js_mode <> 4 And walkControl";
 if (_click_enabled && _js_mode!=4 && mostCurrent._walkcontrol._powr /*double*/ ==0) { 
- //BA.debugLineNum = 314;BA.debugLine="delayTimer.Enabled = True";
+ //BA.debugLineNum = 318;BA.debugLine="delayTimer.Enabled = True";
 _delaytimer.setEnabled(anywheresoftware.b4a.keywords.Common.True);
- //BA.debugLineNum = 315;BA.debugLine="click_enabled = False";
+ //BA.debugLineNum = 319;BA.debugLine="click_enabled = False";
 _click_enabled = anywheresoftware.b4a.keywords.Common.False;
- //BA.debugLineNum = 317;BA.debugLine="pckt = turnControl.GetPckt(js_mode)";
+ //BA.debugLineNum = 321;BA.debugLine="pckt = turnControl.GetPckt(js_mode)";
 mostCurrent._pckt = mostCurrent._turncontrol._getpckt /*String*/ (_js_mode);
- //BA.debugLineNum = 319;BA.debugLine="If pckt <> \"\" Then";
+ //BA.debugLineNum = 323;BA.debugLine="If pckt <> \"\" Then";
 if ((mostCurrent._pckt).equals("") == false) { 
- //BA.debugLineNum = 320;BA.debugLine="Log(pckt)";
-anywheresoftware.b4a.keywords.Common.LogImpl("49568267",mostCurrent._pckt,0);
- //BA.debugLineNum = 321;BA.debugLine="Send_Packet(pckt)";
+ //BA.debugLineNum = 324;BA.debugLine="Log(pckt)";
+anywheresoftware.b4a.keywords.Common.LogImpl("31245195",mostCurrent._pckt,0);
+ //BA.debugLineNum = 325;BA.debugLine="Send_Packet(pckt)";
 _send_packet(mostCurrent._pckt);
  };
  };
- //BA.debugLineNum = 325;BA.debugLine="End Sub";
+ //BA.debugLineNum = 329;BA.debugLine="End Sub";
 return "";
 }
 public static String  _udp_packetarrived(anywheresoftware.b4a.objects.SocketWrapper.UDPSocket.UDPPacket _packet) throws Exception{
 String _reply_packet = "";
- //BA.debugLineNum = 235;BA.debugLine="Sub UDP_PacketArrived (Packet As UDPPacket)";
- //BA.debugLineNum = 236;BA.debugLine="Dim reply_packet As String = BytesToString(Packet";
+ //BA.debugLineNum = 239;BA.debugLine="Sub UDP_PacketArrived (Packet As UDPPacket)";
+ //BA.debugLineNum = 240;BA.debugLine="Dim reply_packet As String = BytesToString(Packet";
 _reply_packet = anywheresoftware.b4a.keywords.Common.BytesToString(_packet.getData(),(int) (0),_packet.getLength(),"UTF8");
- //BA.debugLineNum = 237;BA.debugLine="responseReceived = True";
+ //BA.debugLineNum = 241;BA.debugLine="responseReceived = True";
 _responsereceived = anywheresoftware.b4a.keywords.Common.True;
- //BA.debugLineNum = 239;BA.debugLine="If reply_packet.StartsWith(\"A\") Then";
+ //BA.debugLineNum = 243;BA.debugLine="If reply_packet.StartsWith(\"A\") Then";
 if (_reply_packet.startsWith("A")) { 
- //BA.debugLineNum = 240;BA.debugLine="serverIp = ip.Text";
+ //BA.debugLineNum = 244;BA.debugLine="serverIp = ip.Text";
 mostCurrent._serverip = mostCurrent._ip.getText();
- //BA.debugLineNum = 241;BA.debugLine="serverPort = port.Text";
+ //BA.debugLineNum = 245;BA.debugLine="serverPort = port.Text";
 mostCurrent._serverport = mostCurrent._port.getText();
- //BA.debugLineNum = 242;BA.debugLine="IP_info.Text = \"Connected to: \" & serverIp & \":\"";
+ //BA.debugLineNum = 246;BA.debugLine="IP_info.Text = \"Connected to: \" & serverIp & \":\"";
 mostCurrent._ip_info.setText(BA.ObjectToCharSequence("Connected to: "+mostCurrent._serverip+":"+mostCurrent._serverport));
- //BA.debugLineNum = 244;BA.debugLine="TabHost1.CurrentTab = 1";
+ //BA.debugLineNum = 248;BA.debugLine="TabHost1.CurrentTab = 1";
 mostCurrent._tabhost1.setCurrentTab((int) (1));
- //BA.debugLineNum = 245;BA.debugLine="Disconnect.Visible = True";
+ //BA.debugLineNum = 249;BA.debugLine="Disconnect.Visible = True";
 mostCurrent._disconnect.setVisible(anywheresoftware.b4a.keywords.Common.True);
- //BA.debugLineNum = 246;BA.debugLine="connect.Visible = False";
+ //BA.debugLineNum = 250;BA.debugLine="connect.Visible = False";
 mostCurrent._connect.setVisible(anywheresoftware.b4a.keywords.Common.False);
- //BA.debugLineNum = 247;BA.debugLine="connected = True";
+ //BA.debugLineNum = 251;BA.debugLine="connected = True";
 _connected = anywheresoftware.b4a.keywords.Common.True;
  }else if(_reply_packet.startsWith("R")) { 
- //BA.debugLineNum = 249;BA.debugLine="ToastMessageShow(\"Rejected connection to server\"";
+ //BA.debugLineNum = 253;BA.debugLine="ToastMessageShow(\"Rejected connection to server\"";
 anywheresoftware.b4a.keywords.Common.ToastMessageShow(BA.ObjectToCharSequence("Rejected connection to server"),anywheresoftware.b4a.keywords.Common.True);
  };
- //BA.debugLineNum = 251;BA.debugLine="End Sub";
+ //BA.debugLineNum = 255;BA.debugLine="End Sub";
 return "";
 }
 public static String  _walk_click() throws Exception{
@@ -810,7 +817,7 @@ mostCurrent._active_button.setBackground((android.graphics.drawable.Drawable)(mo
  //BA.debugLineNum = 187;BA.debugLine="task_state = 4";
 _task_state = (int) (4);
  //BA.debugLineNum = 188;BA.debugLine="Log(\"Walk\")";
-anywheresoftware.b4a.keywords.Common.LogImpl("4917508","Walk",0);
+anywheresoftware.b4a.keywords.Common.LogImpl("3524292","Walk",0);
  //BA.debugLineNum = 190;BA.debugLine="walk.Background = cd1";
 mostCurrent._walk.setBackground((android.graphics.drawable.Drawable)(mostCurrent._cd1.getObject()));
  //BA.debugLineNum = 191;BA.debugLine="Active_Button = walk";
@@ -819,41 +826,41 @@ mostCurrent._active_button = mostCurrent._walk;
 return "";
 }
 public static String  _walkjs_value_changed(double _angle,double _angledegrees,double _powr) throws Exception{
- //BA.debugLineNum = 287;BA.debugLine="Private Sub walkJS_value_changed(angle As Double,";
- //BA.debugLineNum = 288;BA.debugLine="walkControl.SetValues(angle, powr)";
+ //BA.debugLineNum = 291;BA.debugLine="Private Sub walkJS_value_changed(angle As Double,";
+ //BA.debugLineNum = 292;BA.debugLine="walkControl.SetValues(angle, powr)";
 mostCurrent._walkcontrol._setvalues /*String*/ (_angle,_powr);
- //BA.debugLineNum = 293;BA.debugLine="If click_enabled Then";
+ //BA.debugLineNum = 297;BA.debugLine="If click_enabled Then";
 if (_click_enabled) { 
- //BA.debugLineNum = 294;BA.debugLine="delayTimer.Enabled = True";
+ //BA.debugLineNum = 298;BA.debugLine="delayTimer.Enabled = True";
 _delaytimer.setEnabled(anywheresoftware.b4a.keywords.Common.True);
- //BA.debugLineNum = 295;BA.debugLine="click_enabled = False";
+ //BA.debugLineNum = 299;BA.debugLine="click_enabled = False";
 _click_enabled = anywheresoftware.b4a.keywords.Common.False;
- //BA.debugLineNum = 297;BA.debugLine="pckt = \"caminar\"";
+ //BA.debugLineNum = 301;BA.debugLine="pckt = \"caminar\"";
 mostCurrent._pckt = "caminar";
- //BA.debugLineNum = 298;BA.debugLine="If js_mode = 4 And turnControl.powr <> 0 Then";
+ //BA.debugLineNum = 302;BA.debugLine="If js_mode = 4 And turnControl.powr <> 0 Then";
 if (_js_mode==4 && mostCurrent._turncontrol._powr /*double*/ !=0) { 
- //BA.debugLineNum = 299;BA.debugLine="pckt = pckt & \" y girar\"";
+ //BA.debugLineNum = 303;BA.debugLine="pckt = pckt & \" y girar\"";
 mostCurrent._pckt = mostCurrent._pckt+" y girar";
  };
- //BA.debugLineNum = 302;BA.debugLine="If pckt <> \"\" Then";
+ //BA.debugLineNum = 306;BA.debugLine="If pckt <> \"\" Then";
 if ((mostCurrent._pckt).equals("") == false) { 
- //BA.debugLineNum = 303;BA.debugLine="Log(pckt)";
-anywheresoftware.b4a.keywords.Common.LogImpl("49961488",mostCurrent._pckt,0);
- //BA.debugLineNum = 304;BA.debugLine="Send_Packet(pckt)";
+ //BA.debugLineNum = 307;BA.debugLine="Log(pckt)";
+anywheresoftware.b4a.keywords.Common.LogImpl("31179664",mostCurrent._pckt,0);
+ //BA.debugLineNum = 308;BA.debugLine="Send_Packet(pckt)";
 _send_packet(mostCurrent._pckt);
  };
  };
- //BA.debugLineNum = 307;BA.debugLine="End Sub";
+ //BA.debugLineNum = 311;BA.debugLine="End Sub";
 return "";
 }
 public static String  _walktimer_tick() throws Exception{
  //BA.debugLineNum = 132;BA.debugLine="Sub walkTimer_Tick";
- //BA.debugLineNum = 133;BA.debugLine="pckt = js.GetWalkPckt(task_state)";
-mostCurrent._pckt = mostCurrent._js._getwalkpckt /*String*/ (_task_state);
+ //BA.debugLineNum = 133;BA.debugLine="pckt = js.GetPckt(task_state)";
+mostCurrent._pckt = mostCurrent._js._getpckt /*String*/ (_task_state);
  //BA.debugLineNum = 134;BA.debugLine="If pckt <> \"\" Then";
 if ((mostCurrent._pckt).equals("") == false) { 
  //BA.debugLineNum = 135;BA.debugLine="Log(pckt)";
-anywheresoftware.b4a.keywords.Common.LogImpl("4589827",mostCurrent._pckt,0);
+anywheresoftware.b4a.keywords.Common.LogImpl("31048579",mostCurrent._pckt,0);
  //BA.debugLineNum = 136;BA.debugLine="Send_Packet(pckt)";
 _send_packet(mostCurrent._pckt);
  };

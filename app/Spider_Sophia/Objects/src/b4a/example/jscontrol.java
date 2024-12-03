@@ -54,42 +54,28 @@ _thz = 0;
 return "";
 }
 public String  _getinfo() throws Exception{
- //BA.debugLineNum = 46;BA.debugLine="Public Sub GetInfo As String";
- //BA.debugLineNum = 47;BA.debugLine="Return \"Ang = \" & Round2(angle, 2) & CRLF & _";
+ //BA.debugLineNum = 48;BA.debugLine="Public Sub GetInfo As String";
+ //BA.debugLineNum = 49;BA.debugLine="Return \"Ang = \" & Round2(angle, 2) & CRLF & _";
 if (true) return "Ang = "+BA.NumberToString(__c.Round2(_angle,(int) (2)))+__c.CRLF+"Pwr = "+BA.NumberToString(__c.Round2(_powr,(int) (2)))+__c.CRLF+"x   = "+BA.NumberToString(__c.Round2(_x,(int) (2)))+__c.CRLF+"y   = "+BA.NumberToString(__c.Round2(_y,(int) (2)))+__c.CRLF+"z   = "+BA.NumberToString(__c.Round2(_z,(int) (2)))+__c.CRLF+"th  = "+BA.NumberToString(__c.Round2(_thx,(int) (2)))+__c.CRLF+"phi = "+BA.NumberToString(__c.Round2(_thy,(int) (2)))+__c.CRLF+"psi = "+BA.NumberToString(__c.Round2(_thz,(int) (2)));
- //BA.debugLineNum = 55;BA.debugLine="End Sub";
+ //BA.debugLineNum = 57;BA.debugLine="End Sub";
 return "";
 }
 public String  _getpckt(int _mode) throws Exception{
 String _pckt = "";
- //BA.debugLineNum = 57;BA.debugLine="Public Sub GetPckt(mode As Int) As String";
- //BA.debugLineNum = 58;BA.debugLine="Dim pckt As String = \"\"";
+ //BA.debugLineNum = 59;BA.debugLine="Public Sub GetPckt(mode As Int) As String";
+ //BA.debugLineNum = 60;BA.debugLine="Dim pckt As String = \"\"";
 _pckt = "";
- //BA.debugLineNum = 59;BA.debugLine="If mode = 0 And (x <> 0 Or z <> 0) Or mode = 1 An";
+ //BA.debugLineNum = 61;BA.debugLine="If mode = 0 And (x <> 0 Or z <> 0) Or mode = 1 An";
 if (_mode==0 && (_x!=0 || _z!=0) || _mode==1 && _thy!=0 || _mode==2 && _y!=0 || _mode==3 && (_thx!=0 || _thz!=0)) { 
- //BA.debugLineNum = 60;BA.debugLine="pckt = \"A\" & Round2(x, 2) & \",\" & Round2(y, 2) &";
+ //BA.debugLineNum = 62;BA.debugLine="pckt = \"A\" & Round2(x, 2) & \",\" & Round2(y, 2) &";
 _pckt = "A"+BA.NumberToString(__c.Round2(_x,(int) (2)))+","+BA.NumberToString(__c.Round2(_y,(int) (2)))+","+BA.NumberToString(__c.Round2(_z,(int) (2)))+","+BA.NumberToString(__c.Round2(_thx,(int) (2)))+","+BA.NumberToString(__c.Round2(_thy,(int) (2)))+","+BA.NumberToString(__c.Round2(_thz,(int) (2)));
- };
- //BA.debugLineNum = 63;BA.debugLine="Return pckt";
-if (true) return _pckt;
- //BA.debugLineNum = 64;BA.debugLine="End Sub";
-return "";
-}
-public String  _getwalkpckt(int _mode) throws Exception{
-String _pckt = "";
- //BA.debugLineNum = 66;BA.debugLine="Public Sub GetWalkPckt(mode As Int) As String";
- //BA.debugLineNum = 67;BA.debugLine="Dim pckt As String = \"\"";
-_pckt = "";
- //BA.debugLineNum = 68;BA.debugLine="If mode = 4 And powr <> 0 Then";
-if (_mode==4 && _powr!=0) { 
- //BA.debugLineNum = 69;BA.debugLine="radio = Max( powr / 100 * 1.2, 0.2)";
-_radio = __c.Max(_powr/(double)100*1.2,0.2);
- //BA.debugLineNum = 70;BA.debugLine="pckt = \"W\" & Round2(angle, 2) & \",\" & Round2(rad";
+ }else if(_mode==4) { 
+ //BA.debugLineNum = 64;BA.debugLine="pckt = \"W\" & Round2(angle, 2) & \",\" & Round2(rad";
 _pckt = "W"+BA.NumberToString(__c.Round2(_angle,(int) (2)))+","+BA.NumberToString(__c.Round2(_radio,(int) (2)));
  };
- //BA.debugLineNum = 73;BA.debugLine="Return pckt";
+ //BA.debugLineNum = 67;BA.debugLine="Return pckt";
 if (true) return _pckt;
- //BA.debugLineNum = 74;BA.debugLine="End Sub";
+ //BA.debugLineNum = 68;BA.debugLine="End Sub";
 return "";
 }
 public String  _initialize(anywheresoftware.b4a.BA _ba) throws Exception{
@@ -132,8 +118,11 @@ _radio = _powr/(double)100*_radlmt;
 _thx = __c.Min(__c.Max(_radio*__c.Sin(_angle),-_radlmt),_radlmt);
  //BA.debugLineNum = 42;BA.debugLine="thz = Min( Max(radio * Cos (angle), -radlmt), ra";
 _thz = __c.Min(__c.Max(_radio*__c.Cos(_angle),-_radlmt),_radlmt);
+ }else if(_mode==4) { 
+ //BA.debugLineNum = 44;BA.debugLine="radio = powr / 100 * 0.7";
+_radio = _powr/(double)100*0.7;
  };
- //BA.debugLineNum = 44;BA.debugLine="End Sub";
+ //BA.debugLineNum = 46;BA.debugLine="End Sub";
 return "";
 }
 public String  _setvalues(double _ang,double _pwr) throws Exception{

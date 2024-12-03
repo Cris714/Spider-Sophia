@@ -11,8 +11,8 @@ Group=Default Group
 Library1=core
 Library2=joystick
 Library3=network
-Library4=xui
-Library5=webviewextras
+Library4=webviewextras
+Library5=xui
 ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: https://www.b4x.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="33"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~SetApplicationAttribute(android:usesCleartextTraffic, "true")~\n~CreateResourceFromFile(Macro, Themes.LightTheme)~\n~'End of default text.~\n~
 Module1=|relative|..\JSControl
 Module2=Starter
@@ -124,7 +124,7 @@ Sub Activity_Create(FirstTime As Boolean)
 	If FirstTime Then
 		udps.Initialize("UDP", 3000, 8192)
 		delayTimer.Initialize("delayTimer", 12)
-		walkTimer.Initialize("walkTimer", 100)
+		walkTimer.Initialize("walkTimer", 25)
 		walkTimer.Enabled = True
 		responseTimer.Initialize("responseTimer", 5000)
 	End If
@@ -153,7 +153,7 @@ Sub delayTimer_Tick
 End Sub
 
 Sub walkTimer_Tick
-	pckt = js.GetWalkPckt(task_state)
+	pckt = js.GetPckt(task_state)
 	If pckt <> "" Then
 		Log(pckt)
 		Send_Packet(pckt)
@@ -212,6 +212,10 @@ Private Sub Walk_Click
 
 	walk.Background = cd1
 	Active_Button = walk
+End Sub
+
+Private Sub Reset_Click
+	Send_Packet("A0,0,0,0,0,0")
 End Sub
 
 #End Region

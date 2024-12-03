@@ -3,8 +3,8 @@
 #define MAX_INTERVAL 1 // Intervalo de espera (s)
 
 // wifi_config
-#define WIFI_MODE_TYPE_AP
-// #define WIFI_MODE_TYPE_NORM
+// #define WIFI_MODE_TYPE_AP
+#define WIFI_MODE_TYPE_NORM
 
 #if defined(WIFI_MODE_TYPE_AP)
     #define SID "SPINARAK32"

@@ -79,13 +79,9 @@ string WifiConfig::receive_packet() {
 
         if (len > 0) packetBuffer[len] = 0;
 
+        if(this->appIP.empty() || (!this->appIP.empty() && remoteIP.toString().c_str() == this->appIP)) lastPacket = string(packetBuffer); 
         verifyDeviceIP(string(packetBuffer), remoteIP.toString().c_str());
 
-        if(this->appIP.empty() || (!this->appIP.empty() && remoteIP.toString().c_str() == this->appIP)) lastPacket = string(packetBuffer); 
-        else {
-            // Serial.printf("IP infiltrada: %s\n", remoteIP.toString().c_str());
-            return "";
-        }
 
         // Serial.printf("Discarded packet from %s: %s\n", remoteIp.toString().c_str(), packetBuffer);
     }

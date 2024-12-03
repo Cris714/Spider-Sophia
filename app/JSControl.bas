@@ -46,6 +46,8 @@ Public Sub Joystick_Action(mode As Int)
 		
 		thx = Min( Max(radio * Sin (angle), -radlmt), radlmt )
 		thz = Min( Max(radio * Cos (angle), -radlmt), radlmt )
+	Else If mode = 4 Then 'Walk
+		radio = powr / 100 * 0.7
 	End If
 End Sub
 
@@ -64,17 +66,9 @@ Public Sub GetPckt(mode As Int) As String
 	Dim pckt As String = ""
 	If mode = 0 And (x <> 0 Or z <> 0) Or mode = 1 And thy <> 0 Or mode = 2 And y <> 0 Or mode = 3 And (thx <> 0 Or thz <> 0) Then
 		pckt = "A" & Round2(x, 2) & "," & Round2(y, 2) & "," & Round2(z, 2) & "," & Round2(thx, 2) & "," & Round2(thy, 2) & "," & Round2(thz, 2)
-	End If
-		
-	Return pckt
-End Sub
-
-Public Sub GetWalkPckt(mode As Int) As String
-	Dim pckt As String = ""
-	If mode = 4 And powr <> 0 Then
-		radio = Max( powr / 100 * 1.2, 0.2)
+	Else If mode = 4 Then
 		pckt = "W" & Round2(angle, 2) & "," & Round2(radio, 2)
 	End If
-	
+		
 	Return pckt
 End Sub

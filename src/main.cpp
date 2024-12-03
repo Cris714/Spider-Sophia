@@ -6,12 +6,14 @@
 #include "secrets.h"
 #include "spider.h"
 #include "body_frame_control.h"
+#include "state.h"
 #include "wifi_config.h"
 
 
 Spider spider(servo_input_pins, servo_home_state_angles, servo_min_pulse, servo_max_pulse);
 WifiConfig wifi(SID, PSWD, PORT, MODE);
 BodyFrameControl bf_control = BodyFrameControl();
+State state = State();
 
 void setup() 
 {
@@ -28,7 +30,6 @@ void setup()
 
 void loop() 
 {
-    unsigned long lastPacketTime;
     string task = wifi.receive_packet();
     
     if(task != "") {
@@ -41,25 +42,27 @@ void loop()
                 stringstream ss (task.substr(1));
                 string item;
 
-                vector<vector<float>> crds(1, vector<float>(6));
-                vector<vector<int>> targets = {{1,1,1,1,1,1}};
+                vector<float> crds(6);
 
                 for (int i=0; i<6; i++) {
                     getline (ss, item, ',');
-                    crds[0][i] = stof(item);
+                    crds[i] = stof(item);
                 }
+
+                state.set_speed(0);
+                state.set_steady_state(crds);
 
 
                 // spider.set_coords( bf_control.moveBodyFrame(crds, targets, 1) );
 
-                t_point6 next_point = bf_control.moveBodyFrame(crds, targets, 1);
-                spider.set_coords(next_point);
-                Serial.printf("Received %f, %f, %f\n", next_point.p0.x, next_point.p0.y, next_point.p0.z);
-                Serial.printf("Received %f, %f, %f\n", next_point.p1.x, next_point.p1.y, next_point.p1.z);
-                Serial.printf("Received %f, %f, %f\n", next_point.p2.x, next_point.p2.y, next_point.p2.z);
-                Serial.printf("Received %f, %f, %f\n", next_point.p3.x, next_point.p3.y, next_point.p3.z);
-                Serial.printf("Received %f, %f, %f\n", next_point.p4.x, next_point.p4.y, next_point.p4.z);
-                Serial.printf("Received %f, %f, %f\n", next_point.p5.x, next_point.p5.y, next_point.p5.z);
+                // t_point6 next_point = bf_control.send_multiple(crds, targets, 1);
+                // spider.set_coords(next_point);
+                // Serial.printf("Received %f, %f, %f\n", next_point.p0.x, next_point.p0.y, next_point.p0.z);
+                // Serial.printf("Received %f, %f, %f\n", next_point.p1.x, next_point.p1.y, next_point.p1.z);
+                // Serial.printf("Received %f, %f, %f\n", next_point.p2.x, next_point.p2.y, next_point.p2.z);
+                // Serial.printf("Received %f, %f, %f\n", next_point.p3.x, next_point.p3.y, next_point.p3.z);
+                // Serial.printf("Received %f, %f, %f\n", next_point.p4.x, next_point.p4.y, next_point.p4.z);
+                // Serial.printf("Received %f, %f, %f\n", next_point.p5.x, next_point.p5.y, next_point.p5.z);
             }
                 break;
 
@@ -70,8 +73,11 @@ void loop()
                 getline (ss, yaw, ',');
                 getline (ss, I, ',');
 
-                bf_control.move_around(spider, stof(yaw), stof(I));
-                lastPacketTime = millis();
+                state.set_speed(stof(I));
+                state.set_yaw(stof(yaw));
+
+                // bf_control.move_around(spider, stof(yaw), stof(I));
+                // lastPacketTime = millis();
             }
                 break;
             case 'M':
@@ -103,7 +109,14 @@ void loop()
             default:
                 break;
         }
-    } else {
-        if (bf_control.isMoving() && (millis() - lastPacketTime > MAX_INTERVAL * 1000) ) bf_control.finishMovement(spider);
+
+        // Serial.printf("%f\n", mov.first[1][2]);
+        // Serial.printf("%f\n", mov.first[1][1]);
     }
+
+    pair<vector<vector<float>>, vector<vector<int>>> mov = state.soft_next_state();
+    spider.set_coords(bf_control.send_multiple(mov.first, mov.second, mov.first.size()));
+    // } else {
+    //     if (bf_control.isMoving() && (millis() - lastPacketTime > MAX_INTERVAL * 1000) ) bf_control.finishMovement(spider);
+    // }
 }
