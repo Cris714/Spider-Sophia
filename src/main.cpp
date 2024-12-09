@@ -20,7 +20,7 @@ void setup()
     Serial.begin(115200);
 
     spider.initialize();
-    wifi.initialize();  
+    // wifi.initialize();  
 }
 
 // - pata extendida
@@ -49,7 +49,7 @@ void loop()
                     crds[i] = stof(item);
                 }
 
-                state.set_speed(0);
+                state.set_linear_speed(0);
                 state.set_steady_state(crds);
 
 
@@ -73,7 +73,7 @@ void loop()
                 getline (ss, yaw, ',');
                 getline (ss, I, ',');
 
-                state.set_speed(stof(I));
+                state.set_linear_speed(stof(I));
                 state.set_yaw(stof(yaw));
 
                 // bf_control.move_around(spider, stof(yaw), stof(I));
@@ -114,9 +114,6 @@ void loop()
         // Serial.printf("%f\n", mov.first[1][1]);
     }
 
-    pair<vector<vector<float>>, vector<vector<int>>> mov = state.soft_next_state();
+    pair<vector<vector<float>>, vector<vector<int>>> mov = state.next_state();
     spider.set_coords(bf_control.send_multiple(mov.first, mov.second, mov.first.size()));
-    // } else {
-    //     if (bf_control.isMoving() && (millis() - lastPacketTime > MAX_INTERVAL * 1000) ) bf_control.finishMovement(spider);
-    // }
 }
