@@ -76,7 +76,7 @@ void State::set_angular_speed(float angular_speed){
 }
 
 void State::set_steady_state(const vector<float>& crds) {
-    if(crds.empty()) { // reset
+    if(crds.size() == 1) { // reset
         this->steady_state.setZero();
         for(int i=0; i<6; i++) Serial.printf("%f ", this->steady_state(i));
         Serial.println();
@@ -173,8 +173,8 @@ pair<vector<vector<float>>, vector<vector<int>>> State::next_state() {
         this->coords(i, 2) = min(max(this->coords(i, 2) + speed_z * D_hat(2), -upper_bound_z), upper_bound_z);
         this->coords(i, 4) = min(max(this->coords(i, 4) + speed_phi * D_hat(4), -upper_bound_phi), upper_bound_phi);
 
-        if(i == 0)
-            printf("%f %f %f %d\n", this->coords(i, 1), target_coords(2), this->coords(i, 2), this->_cycle_length);
+        // if(i == 0)
+        //     printf("%f %f %f %d\n", this->coords(i, 1), target_coords(2), this->coords(i, 2), this->_cycle_length);
     }
 
     // Avanza en ciclo si existe ciclo

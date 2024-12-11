@@ -20,7 +20,7 @@ void setup()
     Serial.begin(115200);
 
     spider.initialize();
-    // wifi.initialize();  
+    wifi.initialize();  
 }
 
 // - pata extendida
@@ -42,11 +42,10 @@ void loop()
                 stringstream ss (task.substr(1));
                 string item;
 
-                vector<float> crds(6);
+                vector<float> crds;
 
-                for (int i=0; i<6; i++) {
-                    getline (ss, item, ',');
-                    crds[i] = stof(item);
+                while(getline(ss, item, ',')) {
+                    crds.push_back(stof(item));
                 }
 
                 state.set_linear_speed(0);
@@ -69,11 +68,14 @@ void loop()
             case 'W':
             {
                 stringstream ss (task.substr(1));
-                string yaw, I;
+                string yaw, I, angS;
                 getline (ss, yaw, ',');
                 getline (ss, I, ',');
+                getline(ss, angS, ',');
+
 
                 state.set_linear_speed(stof(I));
+                state.set_angular_speed(stof(angS));
                 state.set_yaw(stof(yaw));
 
                 // bf_control.move_around(spider, stof(yaw), stof(I));

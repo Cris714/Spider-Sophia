@@ -54,8 +54,7 @@ Sub Globals
 	Dim TabHost1 As TabHost
 	
 	Dim js1, walkJS, turnJS As JoyStick
-	Dim js, walkControl, turnControl As JSControl
-	Dim task_state, js_mode As Int
+	Dim js, walkControl As JSControl
 	Dim pckt As String
 	
 	Dim connect, Disconnect, Active_Button, Mov_xz, Turn_phi, Mov_y, Turn_thpsi, walk As Button
@@ -95,16 +94,14 @@ Sub Activity_Create(FirstTime As Boolean)
 	turnJS.ButtonDrawable = "button"
 	turnJS.PadBackground = "pad"
 	
-	js.Initialize
-	walkControl.Initialize
-	turnControl.Initialize
+	js.Initialize(0)
+	walkControl.Initialize(4)
 	
 	'Button init
 	cd1.Initialize(Colors.RGB(231, 102, 136), 10dip)
 	cd2.Initialize(Colors.RGB(120, 184, 169), 10dip)
 	Mov_xz.Background = cd1
 	click_enabled = True
-	task_state = 0 ' [0]: Mov(x/z), [1]: Turn(phi), [2]: Mov(y), [3]: Turn(th/psi), [4]: Walk
 	Active_Button = Mov_xz
 
 	IP_info.Text = "Disconnected"
@@ -119,7 +116,6 @@ Sub Activity_Create(FirstTime As Boolean)
 					   
 	'Mode Selection Joystick2
 	Spinner1.AddAll(Array As String("Turn", "Mov(x/z)", "Turn(phi)", "Up/Down", "Dance"))
-	js_mode = 4 'Turn
 				   
 	If FirstTime Then
 		udps.Initialize("UDP", 3000, 8192)
@@ -153,10 +149,19 @@ Sub delayTimer_Tick
 End Sub
 
 Sub walkTimer_Tick
-	pckt = js.GetPckt(task_state)
-	If pckt <> "" Then
-		Log(pckt)
-		Send_Packet(pckt)
+	If TabHost1.CurrentTab = 1 Then
+		pckt = js.GetPckt()
+		If pckt <> "" Then
+			Log(pckt)
+			Send_Packet(pckt)
+		End If
+	Else If TabHost1.CurrentTab = 2 Then
+		pckt = walkControl.GetPckt()
+		
+		If pckt <> "" Then
+			Log(pckt)
+			Send_Packet(pckt)
+		End If
 	End If
 End Sub
 
@@ -167,7 +172,7 @@ End Sub
 Private Sub Mov_xz_Click
 	Active_Button.Background = cd2
 	
-	task_state = 0
+	js.SetMode(0)
 	Log("Mov(x/z)")
 	
 	Mov_xz.Background = cd1
@@ -177,7 +182,7 @@ End Sub
 Private Sub Turn_phi_Click
 	Active_Button.Background = cd2
 	
-	task_state = 1
+	js.SetMode(1)
 	Log("Turn(phi)")
 	
 	Turn_phi.Background = cd1
@@ -187,7 +192,7 @@ End Sub
 Private Sub Mov_y_Click
 	Active_Button.Background = cd2
 	
-	task_state = 2
+	js.SetMode(2)
 	Log("Mov(y)")
 	
 	Mov_y.Background = cd1
@@ -197,7 +202,7 @@ End Sub
 Private Sub Turn_thpsi_Click
 	Active_Button.Background = cd2
 	
-	task_state = 3
+	js.SetMode(3)
 	Log("Turn(th/psi)")
 
 	Turn_thpsi.Background = cd1
@@ -207,7 +212,7 @@ End Sub
 Private Sub Walk_Click
 	Active_Button.Background = cd2
 	
-	task_state = 4
+	js.SetMode(4)
 	Log("Walk")
 
 	walk.Background = cd1
@@ -215,7 +220,7 @@ Private Sub Walk_Click
 End Sub
 
 Private Sub Reset_Click
-	Send_Packet("A0,0,0,0,0,0")
+	Send_Packet("A0")
 End Sub
 
 #End Region
@@ -291,16 +296,15 @@ End Sub
 #Region Joystick
 
 Sub js1_value_changed(Angle As Double, angleDegrees As Double, powr As Double)
-	js.SetValues(Angle, powr)
-	js.Joystick_Action(task_state)
+	js.Joystick_Action(Angle, powr)
 	
 	Coords_info.Text = js.GetInfo
 	
-	If click_enabled And task_state <> 4 Then
+	If click_enabled And js.GetMode <> 4 Then
 		delayTimer.Enabled = True
 		click_enabled = False
 		
-		pckt = js.GetPckt(task_state)
+		pckt = js.GetPckt()
 		
 		If pckt <> "" Then
 			Log(pckt)
@@ -312,50 +316,42 @@ Sub js1_value_changed(Angle As Double, angleDegrees As Double, powr As Double)
 End Sub
 
 Private Sub walkJS_value_changed(angle As Double, angleDegrees As Double, powr As Double)
-	walkControl.SetValues(angle, powr)
-	
-	'Calcular cosas pa caminar
-	'Capturar info de que se gira con el joystick2
-	
-	If click_enabled Then
-		delayTimer.Enabled = True
-		click_enabled = False
-		
-		pckt = "caminar"
-		If js_mode = 4 And turnControl.powr <> 0 Then
-			pckt = pckt & " y girar"
-		End If
-		
-		If pckt <> "" Then
-			Log(pckt)
-			Send_Packet(pckt)
-		End If
-	End If
+	walkControl.SetMode(4)
+	Spinner1.SelectedIndex = 0
+	walkTimer.Enabled = True
+	walkControl.Joystick_Action(angle, powr)
 End Sub
 
 Private Sub turnJS_value_changed(angle As Double, angleDegrees As Double, powr As Double)
-	turnControl.SetValues(angle, powr)
-	turnControl.Joystick_Action(js_mode)
+	If walkControl.GetMode <> 4 Then
+		walkTimer.Enabled = False
+		walkControl.Joystick_Action(angle, powr)
+	Else
+		walkControl.SetAngleSpeed(angle, powr)
+	End If
 	
-	If click_enabled And js_mode <> 4 And walkControl.powr = 0 Then
-		delayTimer.Enabled = True
-		click_enabled = False
-		
-		pckt = turnControl.GetPckt(js_mode)
-		
-		If pckt <> "" Then
-			Log(pckt)
-			Send_Packet(pckt)
+	If walkControl.GetMode <> 4 Or walkControl.powr = 0 Then
+		If click_enabled Then
+			delayTimer.Enabled = True
+			click_enabled = False
+			
+			pckt = walkControl.GetPckt()
+			
+			If pckt <> "" Then
+				Log(pckt)
+				Send_Packet(pckt)
+			End If
+			
 		End If
-		
 	End If
 End Sub
 
 #End Region
 
 Private Sub Spinner1_ItemClick (Position As Int, Value As Object)
-	js_mode = Position - 1
+	Dim js_mode As Int = Position - 1
 	If js_mode = -1 Then
 		js_mode = 4
 	End If
+	walkControl.SetMode(js_mode)
 End Sub
