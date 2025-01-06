@@ -57,8 +57,10 @@ State::State(float lifting_height = -2.5, float desp_max = 6.0, float phi_max = 
 }
 
 void State::set_yaw(float yaw) {
-    this->yaw = yaw;
-    printf("%f\n", this->yaw);
+    if(this->linear_speed > 1e-3) { // default position
+        this->yaw = yaw;
+        printf("%f\n", this->yaw);
+    }
 }
 
 void State::set_linear_speed(float linear_speed) {
@@ -178,12 +180,16 @@ pair<vector<vector<float>>, vector<vector<int>>> State::next_state() {
     }
 
     // Avanza en ciclo si existe ciclo
+    // Serial.printf("%d\n", this->_cycle_length);
     if(this->_cycle_length > 0){
         this->_cycle_state = (this->_cycle_state + 1) % this->_cycle_length;
         // la detencion solo es posible si xz esta en el target 0
-        float maxX = sqrt(this->coords.col(0).maxCoeff());
+        float maxX = this->coords.col(0).maxCoeff();
         float maxZ = this->coords.col(2).maxCoeff();
-        if(this->_soft_stop_cycle && this->_cycle_state == 0 && maxX * maxX + maxZ * maxZ < 1e-3) {
+        printf("%d - ", this->_soft_stop_cycle);
+        printf("%d - ", this->_cycle_state);
+        printf("%f\n", maxX * maxX + maxZ * maxZ);
+        if(this->_soft_stop_cycle && this->_cycle_state == 0 && sqrt(maxX * maxX + maxZ * maxZ) < 1e-3) {
             this->_cycle_state = 0;
             this->_cycle_length = 0;
             this->_soft_stop_cycle = false;
